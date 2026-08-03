@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMECC · Báo cáo tổng quan tiến độ dự án</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg-body:#eef1f6;
+    --bg-header:#152238;
+    --bg-header-2:#1e3153;
+    --bg-card:#ffffff;
+    --border:#e3e7ee;
+    --border-strong:#d5dbe5;
+    --text-dark:#1b2735;
+    --text-body:#3c4859;
+    --text-muted:#8592a3;
+    --accent-blue:#3f6fd6;
+    --accent-blue-bg:#eaf0fd;
+    --accent-orange:#f0a63c;
+    --green:#249d63; --green-bg:#e5f7ee; --green-border:#b8e6cd;
+    --yellow:#c9891d; --yellow-bg:#fbf1de; --yellow-border:#f0dcae;
+    --red:#d1453b; --red-bg:#fce9e7; --red-border:#f3c4bf;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--bg-body); color:var(--text-dark); font-family:var(--font-body); min-height:100vh; }
+  .wrap{ max-width:1400px; margin:0 auto; padding:0 0 50px; }
+
+  /* Header */
+  header.topbar{
+    background:var(--bg-header); color:#fff; padding:18px 30px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+  }
+  .brand-row{ display:flex; align-items:center; gap:14px; }
+  .logo-box{
+    background:#fff; border-radius:8px; padding:8px 14px; display:flex; flex-direction:column; align-items:center; line-height:1;
+  }
+  .logo-box .logo-txt{ font-weight:800; font-size:16px; color:var(--bg-header); letter-spacing:0.5px; }
+  .logo-box .logo-tag{ font-size:7px; font-style:italic; color:var(--red); margin-top:1px; }
+  .title-block h1{ font-size:19px; font-weight:700; margin:0; letter-spacing:0.2px; }
+  .title-block .subtitle{ font-size:10.5px; letter-spacing:0.6px; color:#9fb3d1; text-transform:uppercase; margin-top:3px; font-weight:500; }
+  .header-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .btn-outline{
+    background:transparent; border:1px solid #3a4f70; color:#dbe4f2; font-family:var(--font-body);
+    font-size:12.5px; padding:8px 14px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .btn-outline:hover{ background:var(--bg-header-2); }
+  .meta-text{ font-size:11.5px; color:#8fa2bd; font-family:var(--font-mono); }
+  .meta-text b{ color:#cddcf0; }
+  .btn-solid{
+    background:var(--accent-blue); border:none; color:#fff; font-family:var(--font-body); font-weight:600;
+    font-size:12.5px; padding:8px 16px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .btn-solid:hover{ background:#3560bf; }
+
+  /* Tab bar */
+  nav.tabbar{ background:#fff; border-bottom:1px solid var(--border); display:flex; gap:6px; padding:0 30px; }
+  .tab{
+    background:none; border:none; padding:14px 18px; font-family:var(--font-body); font-size:13.5px; font-weight:600;
+    color:var(--text-muted); cursor:pointer; border-bottom:2.5px solid transparent; display:flex; align-items:center; gap:8px;
+  }
+  .tab.active{ color:var(--accent-blue); border-bottom-color:var(--accent-blue); }
+  .tab.tab-disabled{ cursor:not-allowed; color:#c3cad5; }
+  .soon{ font-size:9px; background:var(--border); color:var(--text-muted); padding:2px 7px; border-radius:9px; font-weight:600; }
+
+  .content{ padding:22px 30px 0; }
+
+  /* Filter bar */
+  .filter-bar{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px 26px;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:30px; flex-wrap:wrap; margin-bottom:18px;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:6px; }
+  .filter-group label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); font-weight:700; }
+
+  .hslider-wrap{ width:230px; padding-top:22px; }
+  .hslider-track{ position:relative; height:20px; }
+  .hslider-base{ position:absolute; top:50%; left:0; right:0; height:4px; transform:translateY(-50%); background:var(--border-strong); border-radius:2px; }
+  .hslider-fill{ position:absolute; top:50%; height:4px; transform:translateY(-50%); background:var(--accent-blue); border-radius:2px; }
+  input.hslider{
+    position:absolute; top:50%; left:0; width:100%; margin:0; transform:translateY(-50%);
+    -webkit-appearance:none; appearance:none; background:transparent; pointer-events:none; height:20px;
+  }
+  input.hslider::-webkit-slider-runnable-track{ background:transparent; height:4px; }
+  input.hslider::-webkit-slider-thumb{
+    -webkit-appearance:none; pointer-events:auto; width:15px; height:15px; border-radius:50%; margin-top:0;
+    background:var(--accent-blue); border:2px solid #fff; box-shadow:0 0 0 1px var(--border-strong); cursor:pointer;
+  }
+  input.hslider::-moz-range-track{ background:transparent; height:4px; border:none; }
+  input.hslider::-moz-range-thumb{
+    pointer-events:auto; width:15px; height:15px; border-radius:50%;
+    background:var(--accent-blue); border:2px solid #fff; box-shadow:0 0 0 1px var(--border-strong); cursor:pointer;
+  }
+  .hslider-badge{
+    position:absolute; top:-24px; transform:translateX(-50%); font-family:var(--font-mono); font-size:10.5px; font-weight:700;
+    color:var(--accent-blue); background:var(--accent-blue-bg); padding:2px 7px; border-radius:9px; white-space:nowrap;
+  }
+  select, input[type=text]{
+    background:#fff; border:1px solid var(--border-strong); color:var(--text-dark);
+    font-family:var(--font-body); font-size:13.5px; padding:8px 12px; border-radius:6px; outline:none; min-width:170px;
+  }
+  select:focus, input[type=text]:focus{ border-color:var(--accent-blue); box-shadow:0 0 0 3px var(--accent-blue-bg); }
+  .chip-row{ display:flex; gap:8px; }
+  .chip{
+    background:#fff; border:1px solid var(--border-strong); color:var(--text-body); font-family:var(--font-body);
+    font-size:12.5px; padding:8px 13px; border-radius:20px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .chip:hover{ border-color:var(--accent-blue); }
+  .chip.active{ background:var(--accent-blue-bg); border-color:var(--accent-blue); color:var(--accent-blue); font-weight:600; }
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot-green{ background:var(--green); } .dot-yellow{ background:var(--yellow); } .dot-red{ background:var(--red); } .dot-all{ background:var(--accent-blue); }
+
+  /* KPI row */
+  .kpi-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px; }
+  .kpi-card{ background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px 18px; }
+  .kpi-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); font-weight:700; }
+  .kpi-value{ font-family:var(--font-mono); font-size:29px; font-weight:600; margin-top:8px; color:var(--text-dark); }
+  .kpi-card.green .kpi-value{ color:var(--green); }
+  .kpi-card.yellow .kpi-value{ color:var(--yellow); }
+  .kpi-card.red .kpi-value{ color:var(--red); }
+
+  /* Panel */
+  .panel{ background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:18px; }
+  .panel-header{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px; }
+  .panel-header h2{ font-size:15px; font-weight:700; margin:0; color:var(--text-dark); display:flex; align-items:center; gap:8px; }
+  .panel-header h2 .bullet{ color:var(--accent-blue); }
+  .scurve-context{ font-size:12.5px; color:var(--text-muted); }
+  .scurve-context strong{ color:var(--accent-blue); font-family:var(--font-mono); font-weight:600; }
+  .link-btn{
+    background:none; border:1px solid var(--border-strong); color:var(--accent-blue); font-family:var(--font-body);
+    font-size:11.5px; padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:8px;
+  }
+  .link-btn:hover{ background:var(--accent-blue-bg); }
+
+  .rail-legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:var(--text-muted); }
+  .rail-legend span b{ color:var(--text-body); }
+
+  /* Project card */
+  #projectList{ max-height:480px; overflow-y:auto; padding-right:6px; }
+  #projectList::-webkit-scrollbar{ width:8px; }
+  #projectList::-webkit-scrollbar-track{ background:transparent; }
+  #projectList::-webkit-scrollbar-thumb{ background:var(--border-strong); border-radius:4px; }
+  #projectList::-webkit-scrollbar-thumb:hover{ background:var(--text-muted); }
+  .project-card{ border:1px solid var(--border); border-left:4px solid var(--border); border-radius:8px; margin-bottom:12px; overflow:hidden; }
+  .project-card.status-green{ border-left-color:var(--green); }
+  .project-card.status-yellow{ border-left-color:var(--yellow); }
+  .project-card.status-red{ border-left-color:var(--red); }
+  .card-main{ padding:16px 18px; cursor:pointer; transition:background .12s ease; }
+  .card-main:hover{ background:#f7f9fc; }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .card-id{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .project-no{ font-family:var(--font-mono); font-size:17px; font-weight:600; color:var(--text-dark); }
+  .client-name{ font-size:12.5px; color:var(--text-muted); }
+  .card-top-right{ display:flex; align-items:center; gap:10px; }
+  .status-pill{
+    font-size:11px; font-weight:700; padding:4px 12px; border-radius:14px; display:flex; align-items:center; gap:6px;
+    text-transform:uppercase; letter-spacing:0.2px;
+  }
+  .status-pill.green{ background:var(--green-bg); color:var(--green); border:1px solid var(--green-border); }
+  .status-pill.yellow{ background:var(--yellow-bg); color:var(--yellow); border:1px solid var(--yellow-border); }
+  .status-pill.red{ background:var(--red-bg); color:var(--red); border:1px solid var(--red-border); }
+  .overdue-badge{ font-size:10.5px; color:var(--red); font-family:var(--font-mono); margin-left:4px; }
+  .chevron{ font-size:12px; color:var(--text-muted); transition:transform .15s ease; }
+  .project-card.open .chevron{ transform:rotate(180deg); }
+
+  .stage-rail{ display:flex; gap:3px; height:22px; margin-bottom:14px; }
+  .stage-seg{ position:relative; flex:1; background:#f1f3f7; border-radius:3px; overflow:hidden; border:1px solid var(--border); }
+  .stage-seg-fill{ position:absolute; top:0; left:0; bottom:0; }
+  .stage-seg.green .stage-seg-fill{ background:var(--green); }
+  .stage-seg.yellow .stage-seg-fill{ background:var(--yellow); }
+  .stage-seg.red .stage-seg-fill{ background:var(--red); }
+  .stage-seg-label{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:9.5px; font-family:var(--font-mono); font-weight:600; z-index:2; letter-spacing:0.2px; color:var(--text-muted);
+  }
+  .stage-seg.filled .stage-seg-label{ color:#fff; }
+
+  .card-stats{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+  .stat-label{ display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.3px; color:var(--text-muted); margin-bottom:3px; font-weight:600; }
+  .stat-value{ font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--text-dark); }
+  .stat-value.gap-positive{ color:var(--green); }
+  .stat-value.gap-negative{ color:var(--red); }
+  .stat-value.gap-mid{ color:var(--yellow); }
+
+  /* Inline detail panel (accordion) */
+  .detail-panel{ display:none; background:#f7f9fc; border-top:1px solid var(--border); padding:20px 22px 24px; }
+  .detail-panel.open{ display:block; }
+  .table-scroll{ max-height:340px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; }
+  .table-scroll table{ border:none; border-radius:0; }
+  .table-scroll table thead th{ position:sticky; top:0; z-index:2; }
+  .table-scroll table tfoot td{ position:sticky; bottom:0; z-index:2; background:#f1f3f7 !important; }
+  .table-scroll::-webkit-scrollbar{ width:8px; }
+  .table-scroll::-webkit-scrollbar-track{ background:transparent; }
+  .table-scroll::-webkit-scrollbar-thumb{ background:var(--border-strong); border-radius:4px; }
+
+  table.scope-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:18px; background:#fff; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  table.scope-table th{
+    text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:0.2px; color:var(--text-muted);
+    padding:9px 10px; border-bottom:1px solid var(--border); font-weight:700; background:#f1f3f7;
+  }
+  table.scope-table th:first-child, table.scope-table td:first-child{ text-align:left; }
+  table.scope-table td{ padding:9px 10px; border-bottom:1px solid var(--border); font-family:var(--font-mono); text-align:right; color:var(--text-dark); }
+  table.scope-table tr:last-child td{ border-bottom:none; }
+  table.scope-table td:first-child{ font-family:var(--font-body); font-weight:700; color:var(--accent-blue); }
+  .gap-cell.pos{ color:var(--green); } .gap-cell.mid{ color:var(--yellow); } .gap-cell.neg{ color:var(--red); }
+
+  .stage-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .stage-cols{ display:grid; grid-template-columns:2.1fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 0.7fr 0.9fr; align-items:center; column-gap:6px; }
+  .stage-header{ background:#f1f3f7; font-size:10px; text-transform:uppercase; letter-spacing:0.2px; color:var(--text-muted); font-weight:700; padding:9px 10px; position:sticky; top:0; z-index:2; }
+  .stage-header > div:not(:first-child){ text-align:right; }
+  .stage-row{ border-top:1px solid var(--border); cursor:pointer; background:#fff; }
+  .stage-row:hover{ background:#f7f9fc; }
+  .stage-row .stage-cols{ padding:9px 10px; font-family:var(--font-mono); color:var(--text-dark); }
+  .stage-row .stage-cols > div:first-child{ font-family:var(--font-body); font-weight:700; color:var(--accent-blue); text-align:left; display:flex; align-items:center; gap:6px; }
+  .stage-row .stage-cols > div:not(:first-child){ text-align:right; }
+  .stage-chevron{ font-size:11px; color:var(--text-muted); transition:transform .15s ease; }
+  .stage-row.open .stage-chevron{ transform:rotate(180deg); }
+  .stage-detail{ display:none; background:#f7f9fc; border-top:1px solid var(--border); padding:10px 14px 14px; }
+  .stage-detail.open{ display:block; }
+  .stage-detail table.scope-table{ margin-bottom:0; }
+  .stage-total .stage-cols{ padding:9px 10px; font-weight:700; font-family:var(--font-mono); background:#f1f3f7; }
+  .stage-total .stage-cols > div:first-child{ font-family:var(--font-body); text-align:left; color:var(--text-dark); }
+  .stage-total{ position:sticky; bottom:0; z-index:2; border-top:1px solid var(--border); }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .grid2 > .panel{ min-width:0; overflow:hidden; }
+  @media (max-width: 900px){ .grid2{ grid-template-columns:1fr; } }
+
+  .chart-wrap{ position:relative; width:100%; }
+  .chart-wrap canvas{ width:100% !important; }
+
+  table.matrix-table{ width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  table.matrix-table th{
+    text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:0.2px; color:var(--text-muted);
+    padding:10px; border-bottom:1px solid var(--border); font-weight:700; background:#f1f3f7;
+  }
+  table.matrix-table th:first-child, table.matrix-table td:first-child{ text-align:left; }
+  table.matrix-table td{ padding:10px; border-bottom:1px solid var(--border); font-family:var(--font-mono); text-align:right; color:var(--text-dark); }
+  table.matrix-table tr:last-child td{ border-bottom:none; font-weight:700; background:#f7f9fc; }
+  table.matrix-table td:first-child{ font-family:var(--font-body); font-weight:700; color:var(--accent-blue); }
+  .cell-bar{ position:relative; }
+  .cell-bar-fill{ position:absolute; left:0; top:0; bottom:0; background:var(--accent-blue-bg); z-index:0; }
+  .cell-bar-text{ position:relative; z-index:1; }
+
+  @media (max-width: 1100px){
+    .kpi-row{ grid-template-columns:repeat(2,1fr); }
+    .card-stats{ grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand-row">
+      <div class="logo-box"><div class="logo-txt">AMECC</div><div class="logo-tag">cùng xây ngày mai</div></div>
+      <div class="title-block">
+        <h1>AMECC · Ban QLDA</h1>
+        <div class="subtitle">Tiến độ dự án · Khối lượng · Gap — dữ liệu minh hoạ (demo)</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline">↻ Cập nhật dữ liệu</button>
+      <div class="meta-text">✓ Cắt số liệu <b>09/08/2026 · 10:00</b></div>
+      <div class="meta-text">⏱ Tự động lúc <b>08:00</b> hàng ngày</div>
+      <button class="btn-solid" title="Nguồn: 3.Production Target / Completed_Weight_Total / Manpower_Report_Chart">● Nguồn dữ liệu</button>
+    </div>
+  </header>
+
+  <nav class="tabbar">
+    <button class="tab active" id="tabBtn1">Tổng quan tiến độ dự án</button>
+    <button class="tab" id="tabBtn2">Khối lượng hàng ngày</button>
+    <button class="tab" id="tabBtn3">Nguồn nhân sự</button>
+  </nav>
+
+  <div class="content">
+
+    <div id="tab1Content">
+    <section class="filter-bar">
+      <div class="filter-group">
+        <label>Khách hàng</label>
+        <select id="clientFilter"></select>
+      </div>
+      <div class="filter-group status-chips">
+        <label>Trạng thái tiến độ</label>
+        <div class="chip-row" id="statusChips">
+          <button class="chip active" data-status="all"><span class="dot dot-all"></span>Tất cả</button>
+          <button class="chip" data-status="green"><span class="dot dot-green"></span>Đúng tiến độ</button>
+          <button class="chip" data-status="yellow"><span class="dot dot-yellow"></span>Nguy cơ</button>
+          <button class="chip" data-status="red"><span class="dot dot-red"></span>Chậm</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Khoảng thời gian dự án</label>
+        <div class="hslider-wrap">
+          <div class="hslider-track">
+            <div class="hslider-base"></div>
+            <div class="hslider-fill" id="hSliderFill"></div>
+            <span class="hslider-badge" id="timeFromVal" style="left:0%">01/01</span>
+            <span class="hslider-badge" id="timeToVal" style="left:100%">03/08</span>
+            <input type="range" id="timeFrom" class="hslider" min="0" max="214" step="1" value="0">
+            <input type="range" id="timeTo" class="hslider" min="0" max="214" step="1" value="214">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpi-row" id="kpiRow"></section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2><span class="bullet">●</span> Tiến độ dự án</h2>
+        <div class="scurve-context">Đang xem: <strong id="scurveContext">Toàn bộ danh mục</strong>
+          <button class="link-btn" id="resetScurve">↺ Về toàn bộ danh mục</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:300px"><canvas id="scurveChart"></canvas></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2><span class="bullet">●</span> Danh sách dự án <span id="projCount" style="color:var(--text-muted); font-family:var(--font-mono); font-size:13px; font-weight:400;"></span></h2>
+        <div class="rail-legend">
+          <span><b>TK</b> Thiết kế</span><span><b>MS</b> Mua sắm</span><span><b>GC</b> Gia công chế tạo</span>
+          <span><b>SƠ</b> Sơn</span><span><b>ĐK</b> Đóng kiện</span><span><b>GH</b> Giao hàng</span><span><b>TH</b> Thu hồi vốn</span>
+        </div>
+      </div>
+      <div id="projectList"></div>
+    </section>
+
+    </div>
+
+    <div id="tab2Content" style="display:none">
+
+      <section class="filter-bar">
+        <div class="filter-group">
+          <label>Mức thời gian</label>
+          <select id="granSelect">
+            <option value="day">Ngày</option>
+            <option value="week">Tuần</option>
+            <option value="month">Tháng</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Chọn kỳ cụ thể</label>
+          <select id="periodSelect"></select>
+        </div>
+        <div class="filter-group">
+          <label>Đơn vị sản xuất</label>
+          <select id="unitFilter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Dự án</label>
+          <select id="projectFilter"></select>
+        </div>
+      </section>
+
+      <section class="kpi-row" id="kpiRow2"></section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2><span class="bullet">●</span> Khối lượng thực hiện so với kế hoạch</h2>
+          <div class="scurve-context" id="granContext">Theo ngày — Tháng 8/2026</div>
+        </div>
+        <div class="chart-wrap" style="height:300px"><canvas id="comboChart"></canvas></div>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <div class="panel-header"><h2><span class="bullet">●</span> Khối lượng theo công đoạn</h2></div>
+          <div class="chart-wrap" style="height:320px"><canvas id="rankChart"></canvas></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2><span class="bullet">●</span> Top dự án theo khối lượng thực hiện</h2></div>
+          <div class="chart-wrap" style="height:320px"><canvas id="topProjChart"></canvas></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header"><h2><span class="bullet">●</span> Bảng chi tiết theo công đoạn</h2></div>
+        <div id="workItemTableWrap"></div>
+      </section>
+
+    </div>
+
+    <div id="tab3Content" style="display:none">
+
+      <section class="filter-bar">
+        <div class="filter-group">
+          <label>Ngày</label>
+          <select id="hrDayFilter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Đơn vị sản xuất</label>
+          <select id="hrUnitFilter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Dự án</label>
+          <select id="hrProjectFilter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Ca làm việc</label>
+          <select id="hrShiftFilter">
+            <option value="all">Tất cả</option>
+            <option value="k1">K1 (7:30-17:30)</option>
+            <option value="k2">K2 (18:00-2:00)</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="kpi-row" id="kpiRow3"></section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2><span class="bullet">●</span> Nhân lực thực tế so với định biên</h2>
+          <div class="scurve-context" id="hrChartContext"></div>
+        </div>
+        <div class="chart-wrap" style="height:300px"><canvas id="hrComboChart"></canvas></div>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <div class="panel-header"><h2><span class="bullet">●</span> Phân loại nhân sự</h2></div>
+          <div class="chart-wrap" style="height:280px"><canvas id="personnelTypeChart"></canvas></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2><span class="bullet">●</span> Nhân lực phân bổ theo dự án</h2></div>
+          <div class="chart-wrap" style="height:280px"><canvas id="hrProjectChart"></canvas></div>
+        </section>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  const CUTOFF = new Date('2026-08-09');
+
+  const STAGES = [
+    {key:'design', label:'Thiết kế', abbr:'TK', weight:5},
+    {key:'procurement', label:'Mua sắm', abbr:'MS', weight:10},
+    {key:'fabrication', label:'Gia công chế tạo', abbr:'GC', weight:50},
+    {key:'painting', label:'Sơn', abbr:'SƠ', weight:15},
+    {key:'packing', label:'Đóng kiện', abbr:'ĐK', weight:10},
+    {key:'delivery', label:'Giao hàng', abbr:'GH', weight:5},
+    {key:'revenue', label:'Thu hồi vốn', abbr:'TH', weight:5},
+  ];
+
+  const RAW_PROJECTS = [
+    {code:'V250',  client:'VPI',       shipment:'All',                target:3200, start:'2025-11-01', finish:'2026-07-31', planned:100, actual:88, feasCap:92},
+    {code:'M260',  client:'KI',        shipment:'All',                target:520,  start:'2026-02-10', finish:'2026-07-15', planned:100, actual:88, feasCap:92},
+    {code:'F0216', client:'KT',        shipment:'Radiant',            target:1250, start:'2026-05-01', finish:'2026-09-15', planned:75,  actual:80, feasCap:92},
+    {code:'F0243', client:'TNT',       shipment:'Pack 3A+3B',         target:980,  start:'2026-04-15', finish:'2026-09-28', planned:68,  actual:55, feasCap:65},
+    {code:'M280',  client:'BHI',       shipment:'All',                target:2100, start:'2026-03-01', finish:'2026-08-05', planned:100, actual:34, feasCap:45},
+    {code:'M264',  client:'KI',        shipment:'All',                target:640,  start:'2026-06-01', finish:'2026-08-20', planned:85,  actual:89, feasCap:90},
+    {code:'V257',  client:'BHI',       shipment:'All',                target:1500, start:'2026-05-10', finish:'2026-10-10', planned:62,  actual:54, feasCap:60},
+    {code:'M270',  client:'KT Tech',   shipment:'All',                target:1100, start:'2026-05-20', finish:'2026-09-30', planned:68,  actual:70, feasCap:78},
+    {code:'M271',  client:'KT Tech',   shipment:'All',                target:1340, start:'2026-04-01', finish:'2026-09-12', planned:78,  actual:48, feasCap:55},
+    {code:'B272',  client:'KT Tech',   shipment:'All',                target:1780, start:'2026-05-01', finish:'2026-10-18', planned:60,  actual:52, feasCap:58},
+    {code:'U276',  client:'VOGT',      shipment:'All',                target:920,  start:'2026-06-01', finish:'2026-08-25', planned:88,  actual:90, feasCap:93},
+    {code:'U278',  client:'VIRTA',     shipment:'All',                target:1050, start:'2026-05-15', finish:'2026-09-08', planned:68,  actual:40, feasCap:48},
+    {code:'E275',  client:'B&R S.p.A', shipment:'All',                target:760,  start:'2026-06-15', finish:'2026-11-15', planned:42,  actual:36, feasCap:40},
+    {code:'A290',  client:'BHI',       shipment:'Multi (T3/T4/T5)',   target:3200, start:'2026-03-15', finish:'2026-11-20', planned:63,  actual:62, feasCap:66},
+  ];
+
+  const UNIT_POOL = ['WTC','FAC1','FAC2','FAC3','MCC','PAC','AMC-GT','AMC1','AMC2','DEC','IRB','PMC'];
+
+  function daysBetween(a,b){ return (b-a)/86400000; }
+
+  function elapsedPctAt(date, start, finish){
+    const s=new Date(start), f=new Date(finish);
+    const total = daysBetween(s,f);
+    const done = daysBetween(s,date);
+    return Math.max(0, (done/total)*100);
+  }
+
+  function statusFromGap(gap){
+    if(gap>=-3) return 'green';
+    if(gap>=-15) return 'yellow';
+    return 'red';
+  }
+
+  function distributeStage(actualPct){
+    let remaining=actualPct;
+    return STAGES.map(function(s){
+      if(remaining<=0) return Object.assign({},s,{pct:0});
+      if(remaining>=s.weight){ remaining-=s.weight; return Object.assign({},s,{pct:100}); }
+      const pct=(remaining/s.weight)*100; remaining=0; return Object.assign({},s,{pct:Math.round(pct)});
+    });
+  }
+
+  function smoothstep(t){ t=Math.max(0,Math.min(1,t)); return t*t*(3-2*t); }
+
+  function interpAnchors(anchors, x){
+    for(let i=0;i<anchors.length-1;i++){
+      const x0=anchors[i][0], y0=anchors[i][1], x1=anchors[i+1][0], y1=anchors[i+1][1];
+      if(x>=x0 && x<=x1){
+        if(x1===x0) return y1;
+        const t=(x-x0)/(x1-x0);
+        return y0+(y1-y0)*smoothstep(t);
+      }
+    }
+    return anchors[anchors.length-1][1];
+  }
+
+  function seeded(i){ const x=Math.sin(i*999.17)*10000; return x-Math.floor(x); }
+
+  function buildScopeBreakdown(p, idx){
+    const shares=[0.35,0.28,0.22,0.15];
+    const rows=[];
+    const fabTarget = p.target*0.5;
+    const fabStagePct = p.stages.find(function(s){return s.key==='fabrication';}).pct;
+    for(let k=0;k<4;k++){
+      const unit = UNIT_POOL[(idx*3+k)%UNIT_POOL.length];
+      const rnd = seeded(idx*10+k);
+      const rowTarget = fabTarget*shares[k];
+      const rowWorkload = rowTarget*(1+0.03+rnd*0.10);
+      const rowFeasible = rowWorkload*(0.90+rnd*0.06);
+      const rowPerformed = rowWorkload*(fabStagePct/100)*(0.9+rnd*0.2);
+      const denomPlan = rowTarget*(p.planned/100);
+      const pctPlan = denomPlan>0 ? (rowPerformed/denomPlan)*100 : 0;
+      const pctWorkload = (rowPerformed/rowWorkload)*100;
+      rows.push({unit:unit, target:rowTarget, workload:rowWorkload, feasible:rowFeasible, performed:rowPerformed, pctPlan:pctPlan, pctWorkload:pctWorkload, gap:pctWorkload-100});
+    }
+    return rows;
+  }
+
+  const PROJECTS = RAW_PROJECTS.map(function(p, idx){
+    const gap = p.actual-p.planned;
+    const status = statusFromGap(gap);
+    const elapsed = elapsedPctAt(CUTOFF, p.start, p.finish);
+    const stages = distributeStage(p.actual);
+    const performedTons = p.target*p.actual/100;
+    const remainTons = p.target-performedTons;
+    const finishDate = new Date(p.finish);
+    const startDate = new Date(p.start);
+    const overdueDays = finishDate < CUTOFF ? Math.round(daysBetween(finishDate, CUTOFF)) : 0;
+    const cappedElapsed = Math.min(elapsed,100);
+    const planAnchors=[[0,0],[cappedElapsed,p.planned],[100,100]];
+    const actualAnchors=[[0,0],[cappedElapsed,p.actual]];
+    const feasAnchors=[[0,0],[100,p.feasCap]];
+    const proj = Object.assign({}, p, {startDate:startDate, finishDate:finishDate, gap:gap, status:status, elapsed:elapsed, stages:stages, performedTons:performedTons, remainTons:remainTons, overdueDays:overdueDays, planAnchors:planAnchors, actualAnchors:actualAnchors, feasAnchors:feasAnchors});
+    proj.scopeRows = buildScopeBreakdown(proj, idx);
+    return proj;
+  });
+
+  function fmt(n, dec){ dec = dec||0; return Number(n).toLocaleString('vi-VN',{minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+  function fmtDate(d){ return new Date(d).toLocaleDateString('vi-VN'); }
+  function fmtAxisDate(d){ const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm; }
+
+  // ---------- Real-date curve value helpers ----------
+  // value of a project's Plan/Feasible/Actual curve at an arbitrary real calendar date
+  function planValueAt(p, date){
+    if(date<=p.startDate) return 0;
+    if(date>=p.finishDate) return 100;
+    return interpAnchors(p.planAnchors, elapsedPctAt(date, p.start, p.finish));
+  }
+  function feasValueAt(p, date){
+    if(date<=p.startDate) return 0;
+    if(date>=p.finishDate) return p.feasCap;
+    return interpAnchors(p.feasAnchors, elapsedPctAt(date, p.start, p.finish));
+  }
+  function actualValueAt(p, date){
+    if(date>CUTOFF) return null; // future — unknown
+    if(date<=p.startDate) return 0;
+    const capDate = p.finishDate < CUTOFF ? p.finishDate : CUTOFF;
+    if(date>capDate) return p.actual; // already reached its own cutoff/finish point
+    return interpAnchors(p.actualAnchors, elapsedPctAt(date, p.start, p.finish));
+  }
+
+  function buildMonthlyAxis(startMonth){
+    const months = []; for(let m=startMonth; m<=8; m++){ months.push(m); }
+    const labels = months.map(function(m){ return 'Tháng '+m+'/2026'; });
+    const dates = months.map(function(m){
+      const monthEnd = new Date(2026, m, 0);
+      return monthEnd>CUTOFF ? CUTOFF : monthEnd; // không đánh giá vượt quá ngày cắt số liệu hiện tại
+    });
+    return {labels:labels, dates:dates};
+  }
+
+  // ---------- State ----------
+  const SLIDER_MIN_DATE = new Date('2026-01-01');
+  const SLIDER_MAX_DATE = new Date('2026-08-03');
+  const SLIDER_MAX_DAYS = Math.round(daysBetween(SLIDER_MIN_DATE, SLIDER_MAX_DATE));
+
+  const state = { client:'all', status:'all', search:'', selected:null, openCode:null, timeFrom:0, timeTo:SLIDER_MAX_DAYS };
+
+  function dayIndexToDate(idx){ return new Date(SLIDER_MIN_DATE.getTime() + idx*86400000); }
+
+  const clientFilterEl = document.getElementById('clientFilter');
+  const clients = Array.from(new Set(PROJECTS.map(function(p){return p.client;}))).sort();
+  clientFilterEl.innerHTML = '<option value="all">Tất cả khách hàng</option>' + clients.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+  clientFilterEl.addEventListener('change', function(){ state.client=this.value; renderAll(); });
+
+  document.getElementById('statusChips').addEventListener('click', function(e){
+    const btn = e.target.closest('.chip'); if(!btn) return;
+    document.querySelectorAll('#statusChips .chip').forEach(function(c){c.classList.remove('active');});
+    btn.classList.add('active');
+    state.status = btn.getAttribute('data-status');
+    renderAll();
+  });
+
+  const timeFromEl = document.getElementById('timeFrom');
+  const timeToEl = document.getElementById('timeTo');
+  timeFromEl.max = SLIDER_MAX_DAYS; timeToEl.max = SLIDER_MAX_DAYS; timeToEl.value = SLIDER_MAX_DAYS;
+
+  function updateSliderVisual(){
+    const fromPct = state.timeFrom/SLIDER_MAX_DAYS*100;
+    const toPct = state.timeTo/SLIDER_MAX_DAYS*100;
+    document.getElementById('hSliderFill').style.left = fromPct+'%';
+    document.getElementById('hSliderFill').style.width = (toPct-fromPct)+'%';
+    const fromBadge = document.getElementById('timeFromVal');
+    const toBadge = document.getElementById('timeToVal');
+    fromBadge.style.left = fromPct+'%';
+    toBadge.style.left = toPct+'%';
+    fromBadge.textContent = fmtAxisDate(dayIndexToDate(state.timeFrom));
+    toBadge.textContent = fmtAxisDate(dayIndexToDate(state.timeTo));
+    timeToEl.style.zIndex = state.timeFrom>=state.timeTo-3 ? 3 : 2;
+    timeFromEl.style.zIndex = 2;
+  }
+
+  timeFromEl.addEventListener('input', function(){
+    let v = parseInt(this.value,10);
+    if(v>state.timeTo){ v=state.timeTo; this.value=v; }
+    state.timeFrom = v;
+    updateSliderVisual();
+    renderAll();
+  });
+  timeToEl.addEventListener('input', function(){
+    let v = parseInt(this.value,10);
+    if(v<state.timeFrom){ v=state.timeFrom; this.value=v; }
+    state.timeTo = v;
+    updateSliderVisual();
+    renderAll();
+  });
+  updateSliderVisual();
+
+  document.getElementById('resetScurve').addEventListener('click', function(){ state.selected=null; updateSCurve(); });
+
+  function getFiltered(){
+    const winStart = dayIndexToDate(state.timeFrom);
+    const winEnd = dayIndexToDate(state.timeTo);
+    return PROJECTS.filter(function(p){
+      if(state.status!=='all' && p.status!==state.status) return false;
+      if(state.client!=='all' && p.client!==state.client) return false;
+      if(p.finishDate<winStart || p.startDate>winEnd) return false;
+      return true;
+    });
+  }
+
+  const STATUS_LABEL = {green:'Đúng tiến độ', yellow:'Nguy cơ', red:'Chậm'};
+
+  function renderKPIs(list){
+    const total = list.length;
+    const g = list.filter(function(p){return p.status==='green';}).length;
+    const y = list.filter(function(p){return p.status==='yellow';}).length;
+    const r = list.filter(function(p){return p.status==='red';}).length;
+    const totalTarget = list.reduce(function(s,p){return s+p.target;},0);
+    const totalPerf = list.reduce(function(s,p){return s+p.performedTons;},0);
+    const pct = totalTarget>0 ? (totalPerf/totalTarget*100) : 0;
+
+    const cards = [
+      {label:'Tổng số dự án theo dõi', value: total, cls:''},
+      {label:'Đúng tiến độ', value: g, cls:'green'},
+      {label:'Nguy cơ', value: y, cls:'yellow'},
+      {label:'Chậm tiến độ', value: r, cls:'red'},
+      {label:'% Lũy kế / Tổng KL hợp đồng', value: fmt(pct,1)+'%', cls:''},
+    ];
+    document.getElementById('kpiRow').innerHTML = cards.map(function(c){
+      return '<div class="kpi-card '+c.cls+'"><div class="kpi-label">'+c.label+'</div><div class="kpi-value">'+c.value+'</div></div>';
+    }).join('');
+  }
+
+  function gapClass(gap){ return gap>=-3 ? 'gap-positive' : (gap>=-15 ? 'gap-mid' : 'gap-negative'); }
+
+  function renderProjectList(list){
+    const sorted = list.slice().sort(function(a,b){
+      const order = {red:0,yellow:1,green:2};
+      if(order[a.status]!==order[b.status]) return order[a.status]-order[b.status];
+      return a.gap-b.gap;
+    });
+    document.getElementById('projCount').textContent = '('+sorted.length+' dự án)';
+    document.getElementById('projectList').innerHTML = sorted.map(function(p){
+      const rail = p.stages.map(function(s){
+        const filled = s.pct>0;
+        return '<div class="stage-seg '+p.status+(filled?' filled':'')+'" style="flex:'+s.weight+'" title="'+s.label+': '+s.pct+'%">'+
+          '<div class="stage-seg-fill" style="width:'+s.pct+'%"></div>'+
+          '<div class="stage-seg-label">'+s.abbr+'</div></div>';
+      }).join('');
+      const overdue = p.overdueDays>0 ? '<span class="overdue-badge">⚠ quá hạn '+p.overdueDays+' ngày</span>' : '';
+      const gapStr = (p.gap>=0?'+':'')+fmt(p.gap,1)+'%';
+      const isOpen = state.openCode===p.code;
+      return '<div class="project-card status-'+p.status+(isOpen?' open':'')+'" data-code="'+p.code+'">'+
+        '<div class="card-main" data-code="'+p.code+'">'+
+          '<div class="card-top">'+
+            '<div class="card-id"><span class="project-no">'+p.code+'</span><span class="client-name">'+p.client+' · '+p.shipment+'</span></div>'+
+            '<div class="card-top-right"><div class="status-pill '+p.status+'"><span class="dot dot-'+p.status+'"></span>'+STATUS_LABEL[p.status]+overdue+'</div><span class="chevron">▾</span></div>'+
+          '</div>'+
+          '<div class="stage-rail">'+rail+'</div>'+
+          '<div class="card-stats">'+
+            '<div><span class="stat-label">Hoàn thành</span><span class="stat-value">'+fmt(p.actual,0)+'%</span></div>'+
+            '<div><span class="stat-label">Lũy kế / Tổng KL</span><span class="stat-value">'+fmt(p.performedTons,0)+' / '+fmt(p.target,0)+' T</span></div>'+
+            '<div><span class="stat-label">Còn lại</span><span class="stat-value">'+fmt(p.remainTons,0)+' T</span></div>'+
+            '<div><span class="stat-label">Giao dự kiến</span><span class="stat-value" style="font-size:13px">'+fmtDate(p.finish)+'</span></div>'+
+            '<div><span class="stat-label">Gap vs KH</span><span class="stat-value '+gapClass(p.gap)+'">'+gapStr+'</span></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="detail-panel'+(isOpen?' open':'')+'" id="detail-'+p.code+'"></div>'+
+      '</div>';
+    }).join('');
+
+    document.querySelectorAll('.card-main').forEach(function(el){
+      el.addEventListener('click', function(){
+        const code = this.getAttribute('data-code');
+        toggleDetail(code);
+      });
+    });
+
+    if(state.openCode){
+      const stillVisible = sorted.some(function(p){return p.code===state.openCode;});
+      if(stillVisible){ renderDetail(state.openCode); } else { state.openCode=null; }
+    }
+  }
+
+  function toggleDetail(code){
+    const wasOpen = state.openCode===code;
+    const prevCode = state.openCode;
+    state.openCode = wasOpen ? null : code;
+
+    if(prevCode && prevCode!==code){
+      const prevCard = document.querySelector('.project-card[data-code="'+prevCode+'"]');
+      if(prevCard){ prevCard.classList.remove('open'); document.getElementById('detail-'+prevCode).classList.remove('open'); document.getElementById('detail-'+prevCode).innerHTML=''; }
+    }
+    const card = document.querySelector('.project-card[data-code="'+code+'"]');
+    const panel = document.getElementById('detail-'+code);
+    if(wasOpen){
+      card.classList.remove('open'); panel.classList.remove('open'); panel.innerHTML='';
+    } else {
+      card.classList.add('open'); panel.classList.add('open');
+      renderDetail(code);
+      // set S-curve context to this project too
+      state.selected = PROJECTS.find(function(p){return p.code===code;});
+      updateSCurve();
+      card.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+  }
+
+  function renderDetail(code){
+    const p = PROJECTS.find(function(pp){return pp.code===code;});
+    const panel = document.getElementById('detail-'+code);
+    let rows = p.scopeRows.map(function(r){
+      const gc = r.gap>=0?'pos':(r.gap>=-10?'mid':'neg');
+      return '<tr><td>'+r.unit+'</td><td>'+fmt(r.target,1)+'</td><td>'+fmt(r.workload,1)+'</td><td>'+fmt(r.feasible,1)+'</td><td>'+fmt(r.performed,1)+'</td>'+
+        '<td>'+fmt(r.pctPlan,0)+'%</td><td>'+fmt(r.pctWorkload,0)+'%</td>'+
+        '<td class="gap-cell '+gc+'">'+(r.gap>=0?'+':'')+fmt(r.gap,0)+'%</td></tr>';
+    }).join('');
+
+    const totalTarget = p.scopeRows.reduce(function(s,r){return s+r.target;},0);
+    const totalWorkload = p.scopeRows.reduce(function(s,r){return s+r.workload;},0);
+    const totalFeasible = p.scopeRows.reduce(function(s,r){return s+r.feasible;},0);
+    const totalPerformed = p.scopeRows.reduce(function(s,r){return s+r.performed;},0);
+    const totalPctPlan = (totalPerformed/(totalTarget*(p.planned/100)))*100;
+    const totalPctWorkload = (totalPerformed/totalWorkload)*100;
+    const totalGap = totalPctWorkload-100;
+    const totalGc = totalGap>=0?'pos':(totalGap>=-10?'mid':'neg');
+    const totalRow = '<tr style="font-weight:700; background:#f1f3f7;"><td>Tổng</td><td>'+fmt(totalTarget,1)+'</td><td>'+fmt(totalWorkload,1)+'</td><td>'+fmt(totalFeasible,1)+'</td><td>'+fmt(totalPerformed,1)+'</td>'+
+      '<td>'+fmt(totalPctPlan,0)+'%</td><td>'+fmt(totalPctWorkload,0)+'%</td>'+
+      '<td class="gap-cell '+totalGc+'">'+(totalGap>=0?'+':'')+fmt(totalGap,0)+'%</td></tr>';
+
+    panel.innerHTML =
+      '<table class="scope-table"><thead><tr><th>Đơn vị SX</th><th>Target</th><th>Workload</th><th>Khả thi</th><th>Performed</th><th>%Plan-cutoff</th><th>%Workload</th><th>Gap</th></tr></thead>'+
+      '<tbody>'+rows+totalRow+'</tbody></table>';
+  }
+
+  // ---------- S-Curve chart (monthly axis, capped at current month) ----------
+  let scurveChart = null;
+
+  function updateSCurve(){
+    let axis, planData, actualData, feasData, label;
+
+    if(state.selected){
+      const p = state.selected;
+      const startMonth = Math.min(p.startDate.getMonth()+1, 8);
+      axis = buildMonthlyAxis(startMonth);
+      label = p.code+' · '+p.client;
+      planData = axis.dates.map(function(d){ return Math.round(planValueAt(p,d)*10)/10; });
+      feasData = axis.dates.map(function(d){ return Math.round(feasValueAt(p,d)*10)/10; });
+      actualData = axis.dates.map(function(d){ const v=actualValueAt(p,d); return v===null?null:Math.round(v*10)/10; });
+    } else {
+      const list = getFiltered();
+      const use = list.length ? list : PROJECTS;
+      axis = buildMonthlyAxis(1); // Toàn bộ danh mục luôn xem từ Tháng 1/2026
+      label = 'Toàn bộ danh mục ('+use.length+' dự án)';
+      const totalW = use.reduce(function(s,p){return s+p.target;},0) || 1;
+      planData = axis.dates.map(function(d){ return Math.round((use.reduce(function(s,p){return s+planValueAt(p,d)*p.target;},0)/totalW)*10)/10; });
+      feasData = axis.dates.map(function(d){ return Math.round((use.reduce(function(s,p){return s+feasValueAt(p,d)*p.target;},0)/totalW)*10)/10; });
+      actualData = axis.dates.map(function(d){
+        if(d>CUTOFF) return null;
+        return Math.round((use.reduce(function(s,p){return s+actualValueAt(p,d)*p.target;},0)/totalW)*10)/10;
+      });
+    }
+    renderSCurveChart(axis.labels, planData, actualData, feasData);
+    document.getElementById('scurveContext').textContent = label;
+  }
+
+  function renderSCurveChart(labels, planData, actualData, feasData){
+    if(!scurveChart){
+      const ctx = document.getElementById('scurveChart').getContext('2d');
+      scurveChart = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: labels,
+          datasets:[
+            {label:'Kế hoạch (Target)', data:planData, borderColor:'#8592a3', borderDash:[5,3], borderWidth:2, pointRadius:0, tension:0.25, fill:false},
+            {label:'Khả thi (Feasibility)', data:feasData, borderColor:'#f0a63c', borderDash:[2,3], borderWidth:1.6, pointRadius:0, tension:0.25, fill:false},
+            {label:'Thực tế (Performed)', data:actualData, borderColor:'#3f6fd6', backgroundColor:'rgba(63,111,214,0.10)', borderWidth:2.4, pointRadius:0, tension:0.25, fill:true, spanGaps:false},
+          ]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          interaction:{ mode:'index', intersect:false },
+          plugins:{
+            legend:{ labels:{ color:'#3c4859', font:{family:'Inter', size:11.5}, usePointStyle:true, pointStyle:'line' } },
+            tooltip:{ backgroundColor:'#1b2735', borderColor:'#3c4859', borderWidth:1, titleColor:'#fff', bodyColor:'#e8eefc', titleFont:{family:'IBM Plex Mono'}, bodyFont:{family:'IBM Plex Mono'} }
+          },
+          scales:{
+            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:false}, grid:{color:'#eef1f6'} },
+            y:{ min:0, max:105, title:{display:true, text:'% Khối lượng', color:'#8592a3', font:{family:'Inter', size:11}}, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'} }
+          }
+        }
+      });
+    } else {
+      scurveChart.data.labels = labels;
+      scurveChart.data.datasets[0].data = planData;
+      scurveChart.data.datasets[1].data = feasData;
+      scurveChart.data.datasets[2].data = actualData;
+      scurveChart.update();
+    }
+  }
+
+  function renderAll(){
+    const list = getFiltered();
+    renderKPIs(list);
+    renderProjectList(list);
+    if(!state.selected) updateSCurve();
+  }
+
+  // ============================================================
+  // TAB 2 — KHỐI LƯỢNG HÀNG NGÀY
+  // ============================================================
+
+  function isWorkday(d){ return d.getDay()!==0; } // nghỉ Chủ nhật
+  function countWorkdays(year, monthIdx0, fromDay, toDay){
+    let c=0; for(let d=fromDay; d<=toDay; d++){ if(isWorkday(new Date(year,monthIdx0,d))) c++; } return c;
+  }
+  const AUG_TOTAL_WORKDAYS = countWorkdays(2026,7,1,31);
+  const AUG_ELAPSED_WORKDAYS = countWorkdays(2026,7,1,9); // đến ngày cắt số liệu 09/08
+  const PLANNED_PCT_AUG = AUG_ELAPSED_WORKDAYS/AUG_TOTAL_WORKDAYS*100;
+
+  const WORK_ITEMS = [
+    {code:'CPDEC',    name:'Shop DWG',            unit:'DEC',    project:'F0216', target:420, workload:390, feasCap:405, performed:130, manpower:14},
+    {code:'CPMCC',    name:'Cutting Plan',        unit:'MCC',    project:'F0216', target:380, workload:410, feasCap:400, performed:133, manpower:10},
+    {code:'CUTMCC',   name:'Cutting',             unit:'MCC',    project:'M280',  target:950, workload:1020,feasCap:990, performed:243, manpower:22},
+    {code:'CUTFAC3',  name:'Cutting',             unit:'FAC3',   project:'M271',  target:210, workload:225, feasCap:218, performed:34,  manpower:8},
+    {code:'BHWTC',    name:'Tổ hợp dầm',          unit:'WTC',    project:'A290',  target:480, workload:520, feasCap:500, performed:110, manpower:18},
+    {code:'BHFAC2',   name:'Tổ hợp dầm',          unit:'FAC2',   project:'M264',  target:260, workload:290, feasCap:275, performed:35,  manpower:12},
+    {code:'GCPMC',    name:'Tạo hình',            unit:'PMC',    project:'B272',  target:340, workload:355, feasCap:350, performed:128, manpower:9},
+    {code:'FABFAC1',  name:'Fabrication',         unit:'FAC1',   project:'F0216', target:610, workload:650, feasCap:630, performed:181, manpower:26},
+    {code:'FABFAC2',  name:'Fabrication',         unit:'FAC2',   project:'F0243', target:540, workload:575, feasCap:555, performed:102, manpower:21},
+    {code:'FABAMC1',  name:'Fabrication',         unit:'AMC1',   project:'V257',  target:390, workload:415, feasCap:400, performed:58,  manpower:16},
+    {code:'FABAMC2',  name:'Fabrication',         unit:'AMC2',   project:'U276',  target:330, workload:350, feasCap:340, performed:107, manpower:13},
+    {code:'TRLFAC2',  name:'Trial Assembly',      unit:'FAC2',   project:'F0243', target:150, workload:160, feasCap:155, performed:42,  manpower:7},
+    {code:'PNTPAC',   name:'Sơn (Blasting&Paint)',unit:'PAC',    project:'M270',  target:520, workload:560, feasCap:540, performed:126, manpower:20},
+    {code:'PNTTA',    name:'Sơn (Blasting&Paint)',unit:'T.A',    project:'U278',  target:300, workload:320, feasCap:310, performed:36,  manpower:11},
+    {code:'INSIRB',   name:'Bảo ôn/Chịu nhiệt',   unit:'IRB',    project:'E275',  target:240, workload:255, feasCap:248, performed:42,  manpower:9},
+    {code:'PCKAMCGT', name:'Đóng kiện',           unit:'AMC-GT', project:'A290',  target:410, workload:400, feasCap:395, performed:149, manpower:12},
+    {code:'DELPAC',   name:'Giao hàng',           unit:'PAC',    project:'M280',  target:180, workload:175, feasCap:178, performed:39,  manpower:6},
+  ].map(function(w){
+    const remain = w.target-w.performed;
+    const pctPlan = (w.performed/(w.target*PLANNED_PCT_AUG/100))*100;
+    const pctWorkload = (w.performed/w.workload)*100;
+    const gap = pctPlan-100; // so với kế hoạch đã quy đổi theo % thời gian trôi qua trong tháng, không so trực tiếp với Workload cả tháng
+    const productivity = w.performed/(w.manpower*AUG_ELAPSED_WORKDAYS);
+    return Object.assign({}, w, {remain:remain, pctPlan:pctPlan, pctWorkload:pctWorkload, gap:gap, productivity:productivity});
+  });
+
+  const TOTAL_TARGET_AUG = WORK_ITEMS.reduce(function(s,w){return s+w.target;},0);
+  const TOTAL_WORKLOAD_AUG = WORK_ITEMS.reduce(function(s,w){return s+w.workload;},0);
+  const TOTAL_PERFORMED_AUG = WORK_ITEMS.reduce(function(s,w){return s+w.performed;},0);
+  const TOTAL_MANPOWER_AUG = WORK_ITEMS.reduce(function(s,w){return s+w.manpower;},0);
+
+  const MONTHLY_HISTORY = [
+    {m:1,target:4200,performed:4100},{m:2,target:4450,performed:4300},{m:3,target:4800,performed:4550},
+    {m:4,target:5100,performed:4700},{m:5,target:5400,performed:5100},{m:6,target:5600,performed:5350},
+    {m:7,target:5900,performed:5500},{m:8,target:TOTAL_TARGET_AUG,performed:TOTAL_PERFORMED_AUG},
+  ];
+
+  function getISOWeek(date){
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+  }
+  function mondayOf(date){
+    const d = new Date(date); const day = d.getDay() || 7; d.setDate(d.getDate()-(day-1)); return d;
+  }
+  function buildAugWeeks(){
+    // Các tuần thực theo lịch (Thứ 2 → Chủ nhật) có giao với tháng 8/2026
+    const weeks=[];
+    let cur = mondayOf(new Date(2026,7,1)); // Thứ 2 gần nhất trước/bằng 01/08
+    const augEndBoundary = new Date(2026,7,31);
+    while(cur<=augEndBoundary){
+      const sunday = new Date(cur); sunday.setDate(cur.getDate()+6);
+      const isoWeek = getISOWeek(cur);
+      const augStart = cur.getMonth()===7 ? cur.getDate() : 1;
+      const augEnd = sunday.getMonth()===7 ? sunday.getDate() : 31;
+      weeks.push({isoWeek:isoWeek, start:new Date(cur), end:new Date(sunday), augStart:augStart, augEnd:augEnd});
+      cur = new Date(cur); cur.setDate(cur.getDate()+7);
+    }
+    return weeks;
+  }
+  const AUG_WEEKS = buildAugWeeks();
+
+  function buildDailyArrays(){
+    const planArr=[], actualArr=[];
+    const dailyPlanValue = TOTAL_TARGET_AUG/AUG_TOTAL_WORKDAYS;
+    const workdayIdxs=[];
+    for(let d=1; d<=9; d++){ if(isWorkday(new Date(2026,7,d))) workdayIdxs.push(d); }
+    const shares = workdayIdxs.map(function(d){ return 0.8+seeded(d*7)*0.4; });
+    const shareSum = shares.reduce(function(a,b){return a+b;},0);
+    for(let d=1; d<=31; d++){
+      const wd = isWorkday(new Date(2026,7,d));
+      planArr.push(wd ? Math.round(dailyPlanValue*10)/10 : 0);
+      if(d<=9){
+        if(!wd){ actualArr.push(0); }
+        else { const idx=workdayIdxs.indexOf(d); actualArr.push(Math.round(TOTAL_PERFORMED_AUG*shares[idx]/shareSum*10)/10); }
+      } else { actualArr.push(null); }
+    }
+    return {planArr:planArr, actualArr:actualArr};
+  }
+  const DAILY = buildDailyArrays();
+
+  function sumRange(arr, from, to){
+    let hasVal=false, s=0;
+    for(let i=from; i<=to; i++){ if(arr[i]!==null && arr[i]!==undefined){ s+=arr[i]; hasVal=true; } }
+    return hasVal ? Math.round(s*10)/10 : null;
+  }
+
+  let gran = 'day';
+  let unitFilter2 = 'all';
+  let projectFilter2 = 'all';
+  let comboChart=null, rankChart=null, topProjChart=null, tab2Initialized=false;
+
+  function getWorkItemsFiltered(){
+    return WORK_ITEMS.filter(function(w){
+      if(unitFilter2!=='all' && w.unit!==unitFilter2) return false;
+      if(projectFilter2!=='all' && w.project!==projectFilter2) return false;
+      return true;
+    });
+  }
+
+  function buildFilteredDaily(){
+    const items = getWorkItemsFiltered();
+    const fTarget = items.reduce(function(s,w){return s+w.target;},0);
+    const fPerformed = items.reduce(function(s,w){return s+w.performed;},0);
+    const fManpower = items.reduce(function(s,w){return s+w.manpower;},0);
+    const targetRatio = TOTAL_TARGET_AUG>0 ? fTarget/TOTAL_TARGET_AUG : 0;
+    const performedRatio = TOTAL_PERFORMED_AUG>0 ? fPerformed/TOTAL_PERFORMED_AUG : 0;
+    const planArr = DAILY.planArr.map(function(v){ return Math.round(v*targetRatio*10)/10; });
+    const actualArr = DAILY.actualArr.map(function(v){ return v==null ? null : Math.round(v*performedRatio*10)/10; });
+    const monthlyHistory = MONTHLY_HISTORY.map(function(x){
+      return {m:x.m, target:Math.round(x.target*targetRatio), performed:Math.round(x.performed*performedRatio)};
+    });
+    return {fTarget:fTarget, fPerformed:fPerformed, fManpower:fManpower, planArr:planArr, actualArr:actualArr, monthlyHistory:monthlyHistory};
+  }
+
+  function renderKPI2(){
+    const f = buildFilteredDaily();
+    const pctVsTarget = f.fTarget>0 ? f.fPerformed/f.fTarget*100 : 0;
+    const pctVsPlan = f.fTarget>0 ? (f.fPerformed/(f.fTarget*PLANNED_PCT_AUG/100))*100 : 0;
+    const productivity = f.fManpower>0 ? f.fPerformed/(f.fManpower*AUG_ELAPSED_WORKDAYS) : 0;
+    const gap = pctVsPlan-100;
+    const scopeNote = (unitFilter2!=='all'||projectFilter2!=='all') ? ' (đang lọc)' : '';
+    const cards = [
+      {label:'KL kế hoạch tháng 8/2026'+scopeNote, value: fmt(f.fTarget,0)+' T', cls:''},
+      {label:'Lũy kế thực hiện', value: fmt(f.fPerformed,0)+' T', cls:''},
+      {label:'% Hoàn thành kế hoạch', value: fmt(pctVsTarget,1)+'%', cls:''},
+      {label:'Năng suất BQ (T/người/ngày)', value: fmt(productivity,2), cls:''},
+      {label:'Gap vs Kế hoạch (cutoff)', value: (gap>=0?'+':'')+fmt(gap,1)+'%', cls: gapClass(gap)==='gap-positive'?'green':(gapClass(gap)==='gap-mid'?'yellow':'red')},
+    ];
+    document.getElementById('kpiRow2').innerHTML = cards.map(function(c){
+      return '<div class="kpi-card '+c.cls+'"><div class="kpi-label">'+c.label+'</div><div class="kpi-value">'+c.value+'</div></div>';
+    }).join('');
+  }
+
+  function populatePeriodSelect(){
+    const sel = document.getElementById('periodSelect');
+    let opts = [];
+    if(gran==='day'){
+      for(let d=1; d<=31; d++){ opts.push({value:d, label:String(d).padStart(2,'0')+'/08/2026'}); }
+      sel.innerHTML = opts.map(function(o){return '<option value="'+o.value+'">'+o.label+'</option>';}).join('');
+      sel.value = 9; // mặc định ngày cắt số liệu 09/08
+    } else if(gran==='week'){
+      opts = AUG_WEEKS.map(function(w,i){
+        return {value:i, label:'Tuần '+w.isoWeek+' ('+fmtAxisDate2(w.start)+' - '+fmtAxisDate2(w.end)+')'};
+      });
+      sel.innerHTML = opts.map(function(o){return '<option value="'+o.value+'">'+o.label+'</option>';}).join('');
+      sel.value = 1; // mặc định tuần chứa ngày cắt số liệu (Tuần 32: 03/08-09/08)
+    } else {
+      for(let m=1; m<=8; m++){ opts.push({value:m, label:'Tháng '+m+'/2026'}); }
+      sel.innerHTML = opts.map(function(o){return '<option value="'+o.value+'">'+o.label+'</option>';}).join('');
+      sel.value = 8; // mặc định tháng hiện tại
+    }
+  }
+  function fmtAxisDate2(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'); }
+
+  function renderComboChart(){
+    const f = buildFilteredDaily();
+    let labels, planData, actualData, contextLabel, highlightIdx;
+    if(gran==='day'){
+      labels = []; for(let d=1;d<=31;d++){ labels.push(String(d).padStart(2,'0')+'/08'); }
+      planData = f.planArr; actualData = f.actualArr;
+      contextLabel = 'Theo ngày — Tháng 8/2026';
+      highlightIdx = parseInt(document.getElementById('periodSelect').value,10)-1;
+    } else if(gran==='week'){
+      labels = AUG_WEEKS.map(function(w){return 'Tuần '+w.isoWeek;});
+      planData = AUG_WEEKS.map(function(w){return sumRange(f.planArr,w.augStart-1,w.augEnd-1);});
+      actualData = AUG_WEEKS.map(function(w){return sumRange(f.actualArr,w.augStart-1,w.augEnd-1);});
+      contextLabel = 'Theo tuần thực (Thứ 2 → Chủ nhật) — Tháng 8/2026';
+      highlightIdx = parseInt(document.getElementById('periodSelect').value,10);
+    } else {
+      labels = f.monthlyHistory.map(function(x){return 'Tháng '+x.m;});
+      planData = f.monthlyHistory.map(function(x){return x.target;});
+      actualData = f.monthlyHistory.map(function(x){return x.performed;});
+      contextLabel = 'Theo tháng — Lũy kế Tháng 1 → 8/2026';
+      highlightIdx = parseInt(document.getElementById('periodSelect').value,10)-1;
+    }
+    document.getElementById('granContext').textContent = contextLabel;
+    const barColors = actualData.map(function(v,i){ return i===highlightIdx ? '#1b3f8f' : '#3f6fd6'; });
+
+    if(!comboChart){
+      const ctx = document.getElementById('comboChart').getContext('2d');
+      comboChart = new Chart(ctx, {
+        data:{
+          labels: labels,
+          datasets:[
+            {type:'bar', label:'Thực hiện', data:actualData, backgroundColor:barColors, borderRadius:3, order:2},
+            {type:'line', label:'Kế hoạch', data:planData, borderColor:'#f0a63c', backgroundColor:'#f0a63c', borderWidth:2, pointRadius:2, tension:0.2, order:1, spanGaps:true},
+          ]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          interaction:{mode:'index', intersect:false},
+          plugins:{
+            legend:{ labels:{ color:'#3c4859', font:{family:'Inter', size:11.5} } },
+            tooltip:{
+              callbacks:{
+                afterBody: function(items){
+                  if(!items.length) return '';
+                  const idx = items[0].dataIndex;
+                  const chart = items[0].chart;
+                  const actual = chart.data.datasets[0].data[idx];
+                  const plan = chart.data.datasets[1].data[idx];
+                  if(plan && actual!=null){ return '% hoàn thành: '+(actual/plan*100).toFixed(1)+'%'; }
+                  return '';
+                }
+              }
+            }
+          },
+          scales:{
+            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
+            y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} }
+          }
+        }
+      });
+    } else {
+      comboChart.data.labels = labels;
+      comboChart.data.datasets[0].data = actualData;
+      comboChart.data.datasets[0].backgroundColor = barColors;
+      comboChart.data.datasets[1].data = planData;
+      comboChart.update();
+    }
+  }
+
+  function renderRankChart(){
+    const items = getWorkItemsFiltered();
+    const grouped = {};
+    items.forEach(function(w){
+      if(!grouped[w.name]) grouped[w.name]=0;
+      grouped[w.name]+=w.performed;
+    });
+    const arr = Object.keys(grouped).map(function(k){return {name:k, value:grouped[k]};}).sort(function(a,b){return b.value-a.value;});
+
+    if(!rankChart){
+      const ctx = document.getElementById('rankChart').getContext('2d');
+      rankChart = new Chart(ctx, {
+        type:'bar',
+        data:{ labels:arr.map(function(x){return x.name;}), datasets:[{label:'Performed', data:arr.map(function(x){return Math.round(x.value);}), backgroundColor:'#3f6fd6', borderRadius:3}] },
+        options:{
+          indexAxis:'y', responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{display:false} },
+          scales:{
+            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} },
+            y:{ ticks:{color:'#3c4859', font:{family:'Inter', size:11.5}}, grid:{display:false} }
+          }
+        }
+      });
+    } else {
+      rankChart.data.labels = arr.map(function(x){return x.name;});
+      rankChart.data.datasets[0].data = arr.map(function(x){return Math.round(x.value);});
+      rankChart.update();
+    }
+  }
+
+  function renderTopProjChart(){
+    const sorted = PROJECTS.slice().sort(function(a,b){return b.performedTons-a.performedTons;});
+    const top = sorted.slice(0,8);
+    const restSum = sorted.slice(8).reduce(function(s,p){return s+p.performedTons;},0);
+    const labels = top.map(function(p){return p.code;});
+    const data = top.map(function(p){return Math.round(p.performedTons);});
+    if(restSum>0){ labels.push('Khác'); data.push(Math.round(restSum)); }
+
+    if(!topProjChart){
+      const ctx = document.getElementById('topProjChart').getContext('2d');
+      topProjChart = new Chart(ctx, {
+        type:'bar',
+        data:{ labels:labels, datasets:[{label:'KL thực hiện', data:data, backgroundColor:'#5fc9da', borderRadius:3}] },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{display:false} },
+          scales:{
+            x:{ ticks:{color:'#3c4859', font:{family:'IBM Plex Mono', size:11}}, grid:{display:false} },
+            y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} }
+          }
+        }
+      });
+    } else {
+      topProjChart.data.labels = labels;
+      topProjChart.data.datasets[0].data = data;
+      topProjChart.update();
+    }
+  }
+
+  function computeAgg(items){
+    const target=items.reduce(function(s,w){return s+w.target;},0);
+    const workload=items.reduce(function(s,w){return s+w.workload;},0);
+    const feasCap=items.reduce(function(s,w){return s+w.feasCap;},0);
+    const performed=items.reduce(function(s,w){return s+w.performed;},0);
+    const manpower=items.reduce(function(s,w){return s+w.manpower;},0);
+    const remain=target-performed;
+    const pctPlan=(performed/(target*PLANNED_PCT_AUG/100))*100;
+    const pctWorkload=(performed/workload)*100;
+    const gap=pctPlan-100;
+    const productivity=performed/(manpower*AUG_ELAPSED_WORKDAYS);
+    return {target:target, workload:workload, feasCap:feasCap, performed:performed, remain:remain, pctPlan:pctPlan, pctWorkload:pctWorkload, gap:gap, productivity:productivity};
+  }
+
+  function stageRowCells(label, a, isTotal){
+    const gc = a.gap>=0?'pos':(a.gap>=-10?'mid':'neg');
+    return '<div>'+label+(isTotal?'':' <span class="stage-chevron">▾</span>')+'</div>'+
+      '<div>'+fmt(a.target,0)+'</div><div>'+fmt(a.workload,0)+'</div><div>'+fmt(a.feasCap,0)+'</div><div>'+fmt(a.performed,0)+'</div><div>'+fmt(a.remain,0)+'</div>'+
+      '<div>'+fmt(a.pctPlan,0)+'%</div><div>'+fmt(a.pctWorkload,0)+'%</div>'+
+      '<div class="gap-cell '+gc+'">'+(a.gap>=0?'+':'')+fmt(a.gap,0)+'%</div><div>'+fmt(a.productivity,2)+'</div>';
+  }
+
+  let openStage = null;
+
+  function renderWorkItemTable(){
+    const items = getWorkItemsFiltered();
+    const groups = {};
+    items.forEach(function(w){ if(!groups[w.name]) groups[w.name]=[]; groups[w.name].push(w); });
+    const stageNames = Object.keys(groups).sort(function(a,b){
+      return computeAgg(groups[b]).performed - computeAgg(groups[a]).performed;
+    });
+
+    const headerCols = '<div>Công đoạn</div><div>Target</div><div>Workload</div><div>Khả thi</div><div>Performed</div><div>Còn lại</div><div>%Plan-cutoff</div><div>%Workload</div><div>Gap</div><div>NS</div>';
+
+    let body = stageNames.map(function(name, idx){
+      const agg = computeAgg(groups[name]);
+      const stageId = 'stage-'+idx;
+      const isOpen = openStage===name;
+      const unitRows = groups[name].map(function(w){
+        const gc = w.gap>=0?'pos':(w.gap>=-10?'mid':'neg');
+        return '<tr><td>'+w.unit+'</td><td>'+w.project+'</td><td>'+fmt(w.target,0)+'</td><td>'+fmt(w.workload,0)+'</td><td>'+fmt(w.feasCap,0)+'</td><td>'+fmt(w.performed,0)+'</td><td>'+fmt(w.remain,0)+'</td>'+
+          '<td>'+fmt(w.pctPlan,0)+'%</td><td>'+fmt(w.pctWorkload,0)+'%</td><td class="gap-cell '+gc+'">'+(w.gap>=0?'+':'')+fmt(w.gap,0)+'%</td><td>'+fmt(w.productivity,2)+'</td></tr>';
+      }).join('');
+      const detailTable = '<table class="scope-table"><thead><tr><th>Đơn vị SX</th><th>Dự án</th><th>Target</th><th>Workload</th><th>Khả thi</th><th>Performed</th><th>Còn lại</th><th>%Plan-cutoff</th><th>%Workload</th><th>Gap</th><th>NS</th></tr></thead><tbody>'+unitRows+'</tbody></table>';
+      return '<div class="stage-row'+(isOpen?' open':'')+'" data-stage="'+name+'"><div class="stage-cols">'+stageRowCells(name, agg, false)+'</div></div>'+
+        '<div class="stage-detail'+(isOpen?' open':'')+'" id="'+stageId+'">'+(isOpen?detailTable:'')+'</div>';
+    }).join('');
+
+    const totalAgg = computeAgg(items);
+    const totalRow = '<div class="stage-total"><div class="stage-cols">'+stageRowCells('Tổng', totalAgg, true)+'</div></div>';
+
+    document.getElementById('workItemTableWrap').innerHTML =
+      '<div class="stage-table">'+
+        '<div class="table-scroll" style="max-height:400px">'+
+          '<div class="stage-header stage-cols">'+headerCols+'</div>'+
+          body+
+        '</div>'+
+        totalRow+
+      '</div>';
+
+    document.querySelectorAll('#workItemTableWrap .stage-row').forEach(function(row){
+      row.addEventListener('click', function(){
+        const name = this.getAttribute('data-stage');
+        openStage = (openStage===name) ? null : name;
+        renderWorkItemTable();
+      });
+    });
+  }
+
+  function renderTab2(){
+    renderKPI2();
+    renderComboChart();
+    renderRankChart();
+    renderTopProjChart();
+    renderWorkItemTable();
+  }
+
+  function initTab2(){
+    const unitFilterEl = document.getElementById('unitFilter');
+    const units = Array.from(new Set(WORK_ITEMS.map(function(w){return w.unit;}))).sort();
+    unitFilterEl.innerHTML = '<option value="all">Tất cả đơn vị</option>' + units.map(function(u){return '<option value="'+u+'">'+u+'</option>';}).join('');
+    unitFilterEl.addEventListener('change', function(){ unitFilter2=this.value; renderKPI2(); renderComboChart(); renderRankChart(); renderWorkItemTable(); });
+
+    const projectFilterEl = document.getElementById('projectFilter');
+    const projects = Array.from(new Set(WORK_ITEMS.map(function(w){return w.project;}))).sort();
+    projectFilterEl.innerHTML = '<option value="all">Tất cả dự án</option>' + projects.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+    projectFilterEl.addEventListener('change', function(){ projectFilter2=this.value; renderKPI2(); renderComboChart(); renderRankChart(); renderWorkItemTable(); });
+
+    document.getElementById('granSelect').addEventListener('change', function(){
+      gran = this.value;
+      populatePeriodSelect();
+      renderComboChart();
+    });
+    document.getElementById('periodSelect').addEventListener('change', function(){
+      renderComboChart();
+    });
+
+    populatePeriodSelect();
+    renderTab2();
+  }
+
+  // ============================================================
+  // TAB 3 — NGUỒN NHÂN SỰ
+  // ============================================================
+  // Theo khảo sát: Ban QLDA chỉ quan tâm Vắng mặt + Quân số thực tế (để tính
+  // năng suất/capacity) — KHÔNG theo dõi "đi muộn" hay phân loại lý do vắng
+  // cho khối sản xuất/dự án (đi muộn chỉ áp dụng cho khối văn phòng, dùng
+  // máy chấm công, ngoài phạm vi báo cáo này).
+
+  // Định biên + vắng mặt được dựng sao cho (base - vắng) khớp đúng manpower
+  // đã dùng ở tab 2 (WORK_ITEMS) — để Năng suất tính ra nhất quán giữa 2 tab.
+  const HR_UNITS = [
+    {unit:'DEC',    base:15, absent:1, k1:14, k2:0},
+    {unit:'MCC',    base:35, absent:3, k1:27, k2:5},
+    {unit:'FAC3',   base:9,  absent:1, k1:8,  k2:0},
+    {unit:'WTC',    base:19, absent:1, k1:18, k2:0},
+    {unit:'FAC2',   base:44, absent:4, k1:36, k2:4},
+    {unit:'PMC',    base:10, absent:1, k1:9,  k2:0},
+    {unit:'FAC1',   base:29, absent:3, k1:22, k2:4},
+    {unit:'AMC1',   base:18, absent:2, k1:16, k2:0},
+    {unit:'AMC2',   base:14, absent:1, k1:13, k2:0},
+    {unit:'PAC',    base:29, absent:3, k1:22, k2:4},
+    {unit:'T.A',    base:12, absent:1, k1:11, k2:0},
+    {unit:'IRB',    base:10, absent:1, k1:9,  k2:0},
+    {unit:'AMC-GT', base:13, absent:1, k1:12, k2:0},
+  ].map(function(u){
+    const actual = u.base - u.absent;
+    const performedByUnit = WORK_ITEMS.filter(function(w){return w.unit===u.unit;}).reduce(function(s,w){return s+w.performed;},0);
+    const productivity = actual>0 ? performedByUnit/(actual*AUG_ELAPSED_WORKDAYS) : 0;
+    const attendance = u.base>0 ? actual/u.base*100 : 0;
+    return Object.assign({}, u, {actual:actual, performedByUnit:performedByUnit, productivity:productivity, attendance:attendance});
+  });
+
+  const TOTAL_BASE_HR = HR_UNITS.reduce(function(s,u){return s+u.base;},0);
+  const TOTAL_ACTUAL_HR = HR_UNITS.reduce(function(s,u){return s+u.actual;},0);
+  const TOTAL_ABSENT_HR = HR_UNITS.reduce(function(s,u){return s+u.absent;},0);
+  const TOTAL_K1 = HR_UNITS.reduce(function(s,u){return s+u.k1;},0);
+  const TOTAL_K2 = HR_UNITS.reduce(function(s,u){return s+u.k2;},0);
+
+  // Phân loại nhân sự (định biên 257 người chia theo loại — theo đúng 4 nhóm khách yêu cầu)
+  const PERSONNEL_TYPES = [
+    {label:'CBNV AMX', value:180},
+    {label:'Học sinh thực tập', value:22},
+    {label:'Thầu phụ (quản lý công lương)', value:30},
+    {label:'Thầu phụ (giao khoán công việc)', value:25},
+  ];
+
+  function buildHRDailyArrays(){
+    const baseArr=[], actualArr=[], k1Arr=[], k2Arr=[];
+    const k2Ratio = TOTAL_K2/TOTAL_ACTUAL_HR;
+    for(let d=1; d<=31; d++){
+      const wd = isWorkday(new Date(2026,7,d));
+      baseArr.push(TOTAL_BASE_HR); // định biên là số cố định, không phụ thuộc ngày nghỉ
+      if(d<=9 && wd){
+        const total = Math.round(TOTAL_ACTUAL_HR*(0.95+seeded(d*13)*0.08));
+        const k2 = Math.round(total*k2Ratio);
+        actualArr.push(total); k1Arr.push(total-k2); k2Arr.push(k2);
+      } else {
+        actualArr.push(null); k1Arr.push(null); k2Arr.push(null); // Chủ nhật/tương lai: chưa có số liệu
+      }
+    }
+    return {baseArr:baseArr, actualArr:actualArr, k1Arr:k1Arr, k2Arr:k2Arr};
+  }
+  const HR_DAILY = buildHRDailyArrays();
+
+  let hrUnitFilter = 'all';
+  let hrProjectFilter = 'all';
+  let hrShiftFilter = 'all';
+  let hrDayFilter = null; // null = ngày gần nhất có số liệu
+  let hrComboChart=null, personnelTypeChart=null, hrProjectChart=null, tab3Initialized=false;
+
+  function findLastReportedDayIdx(){
+    for(let i=8; i>=0; i--){ if(HR_DAILY.actualArr[i]!=null) return i; }
+    return 0;
+  }
+
+  function renderKPI3(){
+    const items = getHRUnitsFiltered();
+    const dayIdx = hrDayFilter;
+    const dayArrs = buildFilteredDailyArrays();
+    const dayActual = dayArrs.actualArr[dayIdx];
+    const dayLabel = String(dayIdx+1).padStart(2,'0')+'/08';
+    const fBase = items.reduce(function(s,u){return s+u.base;},0);
+    const fAbsent = items.reduce(function(s,u){return s+u.absent;},0);
+    const fPerformed = items.reduce(function(s,u){return s+u.performedByUnit;},0);
+    const fActualMonthly = items.reduce(function(s,u){return s+u.actual;},0);
+    const attendanceDay = dayActual!=null ? dayActual/fBase*100 : null;
+    const productivity = fActualMonthly>0 ? fPerformed/(fActualMonthly*AUG_ELAPSED_WORKDAYS) : 0;
+    const scopeNote = (hrUnitFilter!=='all'||hrProjectFilter!=='all'||hrShiftFilter!=='all') ? ' (đang lọc)' : '';
+    const cards = [
+      {label:'Tổng định biên'+scopeNote, value: fmt(fBase,0)+' người', cls:''},
+      {label:'Thực tế ('+dayLabel+')', value: dayActual!=null ? fmt(dayActual,0)+' người' : 'Không có ca làm việc', cls:''},
+      {label:'Tổng vắng mặt (lượt, lũy kế T8)', value: fmt(fAbsent,0), cls:''},
+      {label:'Năng suất BQ (T/người/ngày)', value: fmt(productivity,2), cls:''},
+      {label:'Tỷ lệ đi làm ('+dayLabel+')', value: attendanceDay!=null ? fmt(attendanceDay,1)+'%' : '—', cls: attendanceDay==null?'':(attendanceDay>=95?'green':(attendanceDay>=90?'yellow':'red'))},
+    ];
+    document.getElementById('kpiRow3').innerHTML = cards.map(function(c){
+      return '<div class="kpi-card '+c.cls+'"><div class="kpi-label">'+c.label+'</div><div class="kpi-value">'+c.value+'</div></div>';
+    }).join('');
+  }
+
+  function renderHRComboChart(){
+    const labels = []; for(let d=1;d<=31;d++){ labels.push(String(d).padStart(2,'0')+'/08'); }
+    const items = getHRUnitsFiltered();
+    const dayArrs = buildFilteredDailyArrays();
+    const fK1 = items.reduce(function(s,u){return s+u.k1;},0);
+    const fK2 = items.reduce(function(s,u){return s+u.k2;},0);
+    const fActualMonthly = fK1+fK2;
+    document.getElementById('hrChartContext').textContent = 'Theo ngày — Tháng 8/2026 · Ca: K1 '+fmt(fK1,0)+' người ('+(fActualMonthly>0?fmt(fK1/fActualMonthly*100,0):0)+'%) · K2 '+fmt(fK2,0)+' người ('+(fActualMonthly>0?fmt(fK2/fActualMonthly*100,0):0)+'%)';
+    if(!hrComboChart){
+      const ctx = document.getElementById('hrComboChart').getContext('2d');
+      hrComboChart = new Chart(ctx, {
+        data:{
+          labels: labels,
+          datasets:[
+            {type:'bar', label:'Ca K1 (7:30-17:30)', data:dayArrs.k1Arr, backgroundColor:'#3f6fd6', stack:'shift', borderRadius:3, order:2},
+            {type:'bar', label:'Ca K2 (18:00-2:00)', data:dayArrs.k2Arr, backgroundColor:'#5fc9da', stack:'shift', borderRadius:3, order:2},
+            {type:'line', label:'Định biên', data:dayArrs.baseArr, borderColor:'#f0a63c', backgroundColor:'#f0a63c', borderWidth:2, borderDash:[5,3], pointRadius:0, tension:0, fill:false, order:1},
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{mode:'index', intersect:false},
+          plugins:{ legend:{ labels:{ color:'#3c4859', font:{family:'Inter', size:11.5} } } },
+          scales:{
+            x:{ stacked:true, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
+            y:{ stacked:true, min:0, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Người', color:'#8592a3'} }
+          }
+        }
+      });
+    } else {
+      hrComboChart.data.datasets[0].data = dayArrs.k1Arr;
+      hrComboChart.data.datasets[1].data = dayArrs.k2Arr;
+      hrComboChart.data.datasets[2].data = dayArrs.baseArr;
+      hrComboChart.update();
+    }
+  }
+
+  function renderPersonnelTypeChart(){
+    const ctx = document.getElementById('personnelTypeChart').getContext('2d');
+    personnelTypeChart = new Chart(ctx, {
+      type:'doughnut',
+      data:{
+        labels: PERSONNEL_TYPES.map(function(t){return t.label;}),
+        datasets:[{data:PERSONNEL_TYPES.map(function(t){return t.value;}), backgroundColor:['#3f6fd6','#5fc9da','#f0a63c','#8592a3'], borderWidth:0}]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ color:'#3c4859', font:{family:'Inter', size:11}, boxWidth:12 } } }
+      }
+    });
+  }
+
+  function renderHRProjectChart(){
+    const grouped = {};
+    WORK_ITEMS.forEach(function(w){ if(!grouped[w.project]) grouped[w.project]=0; grouped[w.project]+=w.manpower; });
+    const arr = Object.keys(grouped).map(function(k){return {name:k, value:grouped[k]};}).sort(function(a,b){return b.value-a.value;});
+    const ctx = document.getElementById('hrProjectChart').getContext('2d');
+    hrProjectChart = new Chart(ctx, {
+      type:'bar',
+      data:{ labels:arr.map(function(x){return x.name;}), datasets:[{label:'Nhân lực (người)', data:arr.map(function(x){return x.value;}), backgroundColor:'#5fc9da', borderRadius:3}] },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{
+          x:{ ticks:{color:'#3c4859', font:{family:'IBM Plex Mono', size:11}}, grid:{display:false} },
+          y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Người', color:'#8592a3'} }
+        }
+      }
+    });
+  }
+
+  function getHRUnitsFiltered(){
+    return HR_UNITS.filter(function(u){
+      if(hrUnitFilter!=='all' && u.unit!==hrUnitFilter) return false;
+      if(hrProjectFilter!=='all'){
+        const hasProject = WORK_ITEMS.some(function(w){return w.unit===u.unit && w.project===hrProjectFilter;});
+        if(!hasProject) return false;
+      }
+      return true;
+    });
+  }
+
+  function dayActualForUnit(u, dayIdx){
+    const dayTotal = HR_DAILY.actualArr[dayIdx];
+    if(dayTotal==null) return null;
+    const share = u.actual/TOTAL_ACTUAL_HR;
+    return Math.round(dayTotal*share);
+  }
+
+  function buildFilteredDailyArrays(){
+    const items = getHRUnitsFiltered();
+    const baseArr=[], actualArr=[], k1Arr=[], k2Arr=[];
+    const fBase = items.reduce(function(s,u){return s+u.base;},0);
+    for(let d=0; d<31; d++){
+      let act=0, k1=0, k2=0, any=false;
+      items.forEach(function(u){
+        const ua = dayActualForUnit(u, d);
+        if(ua==null) return;
+        any=true;
+        const uk1 = Math.round(ua*(u.k1/u.actual));
+        const uk2 = ua-uk1;
+        if(hrShiftFilter==='k1'){ act+=uk1; k1+=uk1; }
+        else if(hrShiftFilter==='k2'){ act+=uk2; k2+=uk2; }
+        else { act+=ua; k1+=uk1; k2+=uk2; }
+      });
+      baseArr.push(fBase);
+      actualArr.push(any?act:null);
+      k1Arr.push(any?k1:null);
+      k2Arr.push(any?k2:null);
+    }
+    return {baseArr:baseArr, actualArr:actualArr, k1Arr:k1Arr, k2Arr:k2Arr};
+  }
+
+  function renderTab3(){
+    renderKPI3();
+    renderHRComboChart();
+    renderPersonnelTypeChart();
+    renderHRProjectChart();
+  }
+
+  function initTab3(){
+    const hrDayFilterEl = document.getElementById('hrDayFilter');
+    let dayOpts = '';
+    for(let d=1; d<=9; d++){ dayOpts += '<option value="'+(d-1)+'">'+String(d).padStart(2,'0')+'/08/2026</option>'; }
+    hrDayFilterEl.innerHTML = dayOpts;
+    hrDayFilter = findLastReportedDayIdx();
+    hrDayFilterEl.value = hrDayFilter;
+    hrDayFilterEl.addEventListener('change', function(){
+      hrDayFilter = parseInt(this.value,10);
+      renderKPI3(); renderHRComboChart();
+    });
+
+    const hrUnitFilterEl = document.getElementById('hrUnitFilter');
+    const hrUnits = HR_UNITS.map(function(u){return u.unit;});
+    hrUnitFilterEl.innerHTML = '<option value="all">Tất cả đơn vị</option>' + hrUnits.map(function(u){return '<option value="'+u+'">'+u+'</option>';}).join('');
+    hrUnitFilterEl.addEventListener('change', function(){ hrUnitFilter=this.value; renderKPI3(); renderHRComboChart(); });
+
+    const hrProjectFilterEl = document.getElementById('hrProjectFilter');
+    const hrProjects = Array.from(new Set(WORK_ITEMS.map(function(w){return w.project;}))).sort();
+    hrProjectFilterEl.innerHTML = '<option value="all">Tất cả dự án</option>' + hrProjects.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+    hrProjectFilterEl.addEventListener('change', function(){ hrProjectFilter=this.value; renderKPI3(); renderHRComboChart(); });
+
+    document.getElementById('hrShiftFilter').addEventListener('change', function(){
+      hrShiftFilter = this.value;
+      renderKPI3(); renderHRComboChart();
+    });
+
+    renderTab3();
+  }
+
+  function switchTab(n){
+    document.getElementById('tab1Content').style.display = n===1 ? '' : 'none';
+    document.getElementById('tab2Content').style.display = n===2 ? '' : 'none';
+    document.getElementById('tab3Content').style.display = n===3 ? '' : 'none';
+    document.getElementById('tabBtn1').classList.toggle('active', n===1);
+    document.getElementById('tabBtn2').classList.toggle('active', n===2);
+    document.getElementById('tabBtn3').classList.toggle('active', n===3);
+    if(n===2 && !tab2Initialized){ tab2Initialized=true; initTab2(); }
+    if(n===3 && !tab3Initialized){ tab3Initialized=true; initTab3(); }
+  }
+  document.getElementById('tabBtn1').addEventListener('click', function(){ switchTab(1); });
+  document.getElementById('tabBtn2').addEventListener('click', function(){ switchTab(2); });
+  document.getElementById('tabBtn3').addEventListener('click', function(){ switchTab(3); });
+
+  renderAll();
+  updateSCurve();
+
+})();
+</script>
+</body>
+</html>
