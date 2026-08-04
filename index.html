@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMECC · Báo cáo tổng quan tiến độ dự án</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg-body:#eef1f6;
+    --bg-body:#eef2f7;
     --bg-header:#152238;
     --bg-header-2:#1e3153;
     --bg-card:#ffffff;
@@ -16,14 +19,14 @@
     --text-dark:#1b2735;
     --text-body:#3c4859;
     --text-muted:#8592a3;
-    --accent-blue:#3f6fd6;
-    --accent-blue-bg:#eaf0fd;
+    --accent-blue:#2e6fb0;
+    --accent-blue-bg:#e8f1f9;
     --accent-orange:#f0a63c;
     --green:#249d63; --green-bg:#e5f7ee; --green-border:#b8e6cd;
     --yellow:#c9891d; --yellow-bg:#fbf1de; --yellow-border:#f0dcae;
     --red:#d1453b; --red-bg:#fce9e7; --red-border:#f3c4bf;
-    --font-body:Arial, sans-serif;
-    --font-mono:Arial, sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'Archivo', sans-serif;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -37,11 +40,10 @@
   }
   .brand-row{ display:flex; align-items:center; gap:10px; }
   .logo-box{
-    background:#fff; border-radius:6px; padding:5px 10px; display:flex; flex-direction:column; align-items:center; line-height:1;
+    width:70px; height:42px; background:#fff; border-radius:8px; padding:5px 8px; display:flex; align-items:center; justify-content:center; overflow:hidden;
   }
-  .logo-box .logo-txt{ font-weight:800; font-size:13px; color:var(--bg-header); letter-spacing:0.4px; }
-  .logo-box .logo-tag{ font-size:7px; font-style:italic; color:var(--red); margin-top:1px; }
-  .title-block h1{ font-size:15.5px; font-weight:700; margin:0; letter-spacing:0.2px; }
+  .logo-box img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .title-block h1{ font-family:'Archivo', sans-serif; font-size:15.5px; font-weight:700; margin:0; letter-spacing:0.2px; }
   .title-block .subtitle{ font-size:9px; letter-spacing:0.4px; color:#9fb3d1; text-transform:uppercase; margin-top:2px; font-weight:500; }
   .header-actions{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
   .btn-outline{
@@ -362,7 +364,7 @@
 
   <header class="topbar">
     <div class="brand-row">
-      <div class="logo-box"><div class="logo-txt">AMECC</div><div class="logo-tag">cùng xây ngày mai</div></div>
+      <div class="logo-box"><img src="Amecc.png" alt="AMECC"></div>
       <div class="title-block">
         <h1>AMECC · Ban QLDA</h1>
         <div class="subtitle">Tiến độ dự án · Khối lượng · Gap — dữ liệu minh hoạ (demo)</div>
