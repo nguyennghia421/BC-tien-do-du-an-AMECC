@@ -5,45 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMECC · Báo cáo tổng quan tiến độ dự án</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg-body:#eef1f6;
+    --bg-body:#eef2f7;
     --bg-header:#152238;
-    --bg-header-2:#1e3153;
+    --bg-header-2:#1e3050;
     --bg-card:#ffffff;
-    --border:#e3e7ee;
-    --border-strong:#d5dbe5;
-    --text-dark:#1b2735;
+    --border:#e3e9f1;
+    --border-strong:#d7dee8;
+    --text-dark:#1b2431;
     --text-body:#3c4859;
-    --text-muted:#8592a3;
-    --accent-blue:#3f6fd6;
-    --accent-blue-bg:#eaf0fd;
-    --accent-orange:#f0a63c;
-    --green:#249d63; --green-bg:#e5f7ee; --green-border:#b8e6cd;
-    --yellow:#c9891d; --yellow-bg:#fbf1de; --yellow-border:#f0dcae;
-    --red:#d1453b; --red-bg:#fce9e7; --red-border:#f3c4bf;
+    --text-muted:#7c899b;
+    --accent-blue:#2E6FB0;
+    --accent-blue-bg:#e4eefb;
+    --accent-orange:#E8A33D;
+    --green:#3FA875; --green-bg:#e0f3ea; --green-border:#b8e6cd;
+    --yellow:#E8A33D; --yellow-bg:#fbefd8; --yellow-border:#f3ddab;
+    --red:#D2564A; --red-bg:#fbe4e2; --red-border:#f0cfcb;
     --font-body:'Inter', sans-serif;
-    --font-mono:'IBM Plex Mono', monospace;
+    --font-display:'Archivo', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --shadow:0 1px 2px rgba(21,34,56,.04),0 6px 18px rgba(21,34,56,.06);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{ background:var(--bg-body); color:var(--text-dark); font-family:var(--font-body); min-height:100vh; }
+  body{ background:var(--bg-body); color:var(--text-dark); font-family:var(--font-body); font-size:13px; line-height:1.45; min-height:100vh; -webkit-font-smoothing:antialiased; }
   .wrap{ max-width:1400px; margin:0 auto; padding:0 0 50px; }
 
   /* Header */
   header.topbar{
-    background:var(--bg-header); color:#fff; padding:18px 30px;
+    background:linear-gradient(100deg,var(--bg-header),var(--bg-header-2)); color:#fff; padding:14px 22px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+    position:sticky; top:0; z-index:50;
   }
   .brand-row{ display:flex; align-items:center; gap:14px; }
-  .logo-box{
-    background:#fff; border-radius:8px; padding:8px 14px; display:flex; flex-direction:column; align-items:center; line-height:1;
-  }
-  .logo-box .logo-txt{ font-weight:800; font-size:16px; color:var(--bg-header); letter-spacing:0.5px; }
-  .logo-box .logo-tag{ font-size:7px; font-style:italic; color:var(--red); margin-top:1px; }
-  .title-block h1{ font-size:19px; font-weight:700; margin:0; letter-spacing:0.2px; }
+  .logo-box{ background:#fff; border-radius:8px; padding:5px 9px; display:flex; align-items:center; height:40px; box-shadow:0 1px 3px rgba(0,0,0,.18); }
+  .logo-box img{ display:block; width:auto; height:100%; }
+  .title-block h1{ font-family:var(--font-display); font-size:17px; font-weight:700; line-height:1; margin:0; letter-spacing:0.2px; }
   .title-block .subtitle{ font-size:10.5px; letter-spacing:0.6px; color:#9fb3d1; text-transform:uppercase; margin-top:3px; font-weight:500; }
   .header-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .btn-outline{
@@ -60,7 +60,7 @@
   .btn-solid:hover{ background:#3560bf; }
 
   /* Tab bar */
-  nav.tabbar{ background:#fff; border-bottom:1px solid var(--border); display:flex; gap:6px; padding:0 30px; }
+  nav.tabbar{ background:#fff; border-bottom:1px solid var(--border); display:flex; gap:2px; padding:0 22px; position:sticky; top:68px; z-index:40; }
   .tab{
     background:none; border:none; padding:14px 18px; font-family:var(--font-body); font-size:13.5px; font-weight:600;
     color:var(--text-muted); cursor:pointer; border-bottom:2.5px solid transparent; display:flex; align-items:center; gap:8px;
@@ -118,17 +118,21 @@
 
   /* KPI row */
   .kpi-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px; }
-  .kpi-card{ background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px 18px; }
+  .kpi-card{ background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+  .kpi-card::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--accent-blue); }
+  .kpi-card.green::before{ background:var(--green); }
+  .kpi-card.yellow::before{ background:var(--yellow); }
+  .kpi-card.red::before{ background:var(--red); }
   .kpi-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); font-weight:700; }
-  .kpi-value{ font-family:var(--font-mono); font-size:29px; font-weight:600; margin-top:8px; color:var(--text-dark); }
+  .kpi-value{ font-family:var(--font-display); font-size:27px; font-weight:800; margin-top:8px; color:var(--text-dark); }
   .kpi-card.green .kpi-value{ color:var(--green); }
   .kpi-card.yellow .kpi-value{ color:var(--yellow); }
   .kpi-card.red .kpi-value{ color:var(--red); }
 
   /* Panel */
-  .panel{ background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:18px; }
+  .panel{ background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:18px; box-shadow:var(--shadow); }
   .panel-header{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px; }
-  .panel-header h2{ font-size:15px; font-weight:700; margin:0; color:var(--text-dark); display:flex; align-items:center; gap:8px; }
+  .panel-header h2{ font-family:var(--font-display); font-size:13.5px; font-weight:700; margin:0; color:var(--text-dark); display:flex; align-items:center; gap:8px; }
   .panel-header h2 .bullet{ color:var(--accent-blue); }
   .scurve-context{ font-size:12.5px; color:var(--text-muted); }
   .scurve-context strong{ color:var(--accent-blue); font-family:var(--font-mono); font-weight:600; }
@@ -259,7 +263,7 @@
 
   <header class="topbar">
     <div class="brand-row">
-      <div class="logo-box"><div class="logo-txt">AMECC</div><div class="logo-tag">cùng xây ngày mai</div></div>
+      <div class="logo-box"><img src="Amecc.png" alt="AMECC · Cùng xây ngày mai"></div>
       <div class="title-block">
         <h1>AMECC · Ban QLDA</h1>
         <div class="subtitle">Tiến độ dự án · Khối lượng · Gap — dữ liệu minh hoạ (demo)</div>
@@ -820,9 +824,9 @@
         data:{
           labels: labels,
           datasets:[
-            {label:'Kế hoạch (Target)', data:planData, borderColor:'#8592a3', borderDash:[5,3], borderWidth:2, pointRadius:0, tension:0.25, fill:false},
+            {label:'Kế hoạch (Target)', data:planData, borderColor:'#7c899b', borderDash:[5,3], borderWidth:2, pointRadius:0, tension:0.25, fill:false},
             {label:'Khả thi (Feasibility)', data:feasData, borderColor:'#f0a63c', borderDash:[2,3], borderWidth:1.6, pointRadius:0, tension:0.25, fill:false},
-            {label:'Thực tế (Performed)', data:actualData, borderColor:'#3f6fd6', backgroundColor:'rgba(63,111,214,0.10)', borderWidth:2.4, pointRadius:0, tension:0.25, fill:true, spanGaps:false},
+            {label:'Thực tế (Performed)', data:actualData, borderColor:'#2E6FB0', backgroundColor:'rgba(46,111,176,0.10)', borderWidth:2.4, pointRadius:0, tension:0.25, fill:true, spanGaps:false},
           ]
         },
         options:{
@@ -831,11 +835,11 @@
           interaction:{ mode:'index', intersect:false },
           plugins:{
             legend:{ labels:{ color:'#3c4859', font:{family:'Inter', size:11.5}, usePointStyle:true, pointStyle:'line' } },
-            tooltip:{ backgroundColor:'#1b2735', borderColor:'#3c4859', borderWidth:1, titleColor:'#fff', bodyColor:'#e8eefc', titleFont:{family:'IBM Plex Mono'}, bodyFont:{family:'IBM Plex Mono'} }
+            tooltip:{ backgroundColor:'#1b2431', borderColor:'#3c4859', borderWidth:1, titleColor:'#fff', bodyColor:'#e8eefc', titleFont:{family:'JetBrains Mono'}, bodyFont:{family:'JetBrains Mono'} }
           },
           scales:{
-            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:false}, grid:{color:'#eef1f6'} },
-            y:{ min:0, max:105, title:{display:true, text:'% Khối lượng', color:'#8592a3', font:{family:'Inter', size:11}}, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'} }
+            x:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}, maxRotation:0, autoSkip:false}, grid:{color:'#eef2f7'} },
+            y:{ min:0, max:105, title:{display:true, text:'% Khối lượng', color:'#7c899b', font:{family:'Inter', size:11}}, ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'} }
           }
         }
       });
@@ -1047,7 +1051,7 @@
       highlightIdx = parseInt(document.getElementById('periodSelect').value,10)-1;
     }
     document.getElementById('granContext').textContent = contextLabel;
-    const barColors = actualData.map(function(v,i){ return i===highlightIdx ? '#1b3f8f' : '#3f6fd6'; });
+    const barColors = actualData.map(function(v,i){ return i===highlightIdx ? '#152238' : '#2E6FB0'; });
 
     if(!comboChart){
       const ctx = document.getElementById('comboChart').getContext('2d');
@@ -1080,8 +1084,8 @@
             }
           },
           scales:{
-            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
-            y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} }
+            x:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
+            y:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'}, title:{display:true, text:'Tấn', color:'#7c899b'} }
           }
         }
       });
@@ -1107,12 +1111,12 @@
       const ctx = document.getElementById('rankChart').getContext('2d');
       rankChart = new Chart(ctx, {
         type:'bar',
-        data:{ labels:arr.map(function(x){return x.name;}), datasets:[{label:'Performed', data:arr.map(function(x){return Math.round(x.value);}), backgroundColor:'#3f6fd6', borderRadius:3}] },
+        data:{ labels:arr.map(function(x){return x.name;}), datasets:[{label:'Performed', data:arr.map(function(x){return Math.round(x.value);}), backgroundColor:'#2E6FB0', borderRadius:3}] },
         options:{
           indexAxis:'y', responsive:true, maintainAspectRatio:false,
           plugins:{ legend:{display:false} },
           scales:{
-            x:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} },
+            x:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'}, title:{display:true, text:'Tấn', color:'#7c899b'} },
             y:{ ticks:{color:'#3c4859', font:{family:'Inter', size:11.5}}, grid:{display:false} }
           }
         }
@@ -1142,8 +1146,8 @@
           maintainAspectRatio:false,
           plugins:{ legend:{display:false} },
           scales:{
-            x:{ ticks:{color:'#3c4859', font:{family:'IBM Plex Mono', size:11}}, grid:{display:false} },
-            y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Tấn', color:'#8592a3'} }
+            x:{ ticks:{color:'#3c4859', font:{family:'JetBrains Mono', size:11}}, grid:{display:false} },
+            y:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'}, title:{display:true, text:'Tấn', color:'#7c899b'} }
           }
         }
       });
@@ -1369,7 +1373,7 @@
         data:{
           labels: labels,
           datasets:[
-            {type:'bar', label:'Ca K1 (7:30-17:30)', data:dayArrs.k1Arr, backgroundColor:'#3f6fd6', stack:'shift', borderRadius:3, order:2},
+            {type:'bar', label:'Ca K1 (7:30-17:30)', data:dayArrs.k1Arr, backgroundColor:'#2E6FB0', stack:'shift', borderRadius:3, order:2},
             {type:'bar', label:'Ca K2 (18:00-2:00)', data:dayArrs.k2Arr, backgroundColor:'#5fc9da', stack:'shift', borderRadius:3, order:2},
             {type:'line', label:'Định biên', data:dayArrs.baseArr, borderColor:'#f0a63c', backgroundColor:'#f0a63c', borderWidth:2, borderDash:[5,3], pointRadius:0, tension:0, fill:false, order:1},
           ]
@@ -1379,8 +1383,8 @@
           interaction:{mode:'index', intersect:false},
           plugins:{ legend:{ labels:{ color:'#3c4859', font:{family:'Inter', size:11.5} } } },
           scales:{
-            x:{ stacked:true, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
-            y:{ stacked:true, min:0, ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Người', color:'#8592a3'} }
+            x:{ stacked:true, ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16}, grid:{display:false} },
+            y:{ stacked:true, min:0, ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'}, title:{display:true, text:'Người', color:'#7c899b'} }
           }
         }
       });
@@ -1398,7 +1402,7 @@
       type:'doughnut',
       data:{
         labels: PERSONNEL_TYPES.map(function(t){return t.label;}),
-        datasets:[{data:PERSONNEL_TYPES.map(function(t){return t.value;}), backgroundColor:['#3f6fd6','#5fc9da','#f0a63c','#8592a3'], borderWidth:0}]
+        datasets:[{data:PERSONNEL_TYPES.map(function(t){return t.value;}), backgroundColor:['#2E6FB0','#5b93cf','#E8A33D','#7c899b'], borderWidth:0}]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
@@ -1419,8 +1423,8 @@
         responsive:true, maintainAspectRatio:false,
         plugins:{ legend:{display:false} },
         scales:{
-          x:{ ticks:{color:'#3c4859', font:{family:'IBM Plex Mono', size:11}}, grid:{display:false} },
-          y:{ ticks:{color:'#8592a3', font:{family:'IBM Plex Mono', size:10.5}}, grid:{color:'#eef1f6'}, title:{display:true, text:'Người', color:'#8592a3'} }
+          x:{ ticks:{color:'#3c4859', font:{family:'JetBrains Mono', size:11}}, grid:{display:false} },
+          y:{ ticks:{color:'#7c899b', font:{family:'JetBrains Mono', size:10.5}}, grid:{color:'#eef2f7'}, title:{display:true, text:'Người', color:'#7c899b'} }
         }
       }
     });
